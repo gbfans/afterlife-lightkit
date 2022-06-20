@@ -1,6 +1,9 @@
 # Afterlife Light Kit
 This is the code repository for the Afterlife Light Kit, coming soon!
 
+![PCB: Front](images/afterlife-pcb.png)
+![PCB: Back](images/afterlife-pcb2.png)
+
 ## Project Goals
 * Recreate Cyclotron effect from Ghostbusters Afterlife.
 * Color changing for Ghostbusters: The Video Game modes.
