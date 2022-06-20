@@ -13,18 +13,18 @@ This is the code repository for the Afterlife Light Kit, coming soon!
 * Vent light LED ring
 * Powercell LED ring
 
-## Current Pin Configuration
+## Hardware Pin Configuration
 
     A0 / ADC0 = Potentiometer Input (for adjusting the speed of animations, or other function)
-    D0 / GPIO16 = Fire Trigger (Active Low)
+    D0 / GPIO16 = Fire Trigger (Input Active Low)
     D1 / GPIO5 = Cyclotron Light Data Out
     D2 / GPIO4 = Vent Light Data Out
     D3 / GPIO0 = Powercell Light Data Out
     D4 / GPIO2 = Unused
-    D5 / GPIO14 = Change Trigger (Active Low, for video game mode changes)
-    D6 / GPIO12 = Vent Trigger (Active Low)
-    D7 / GPIO13 = Enable Trigger (Active Low, for turning on the lights)
-    D8 / GPIO15 = Shift Enable (Active High, for turning on the logic shifter)
+    D5 / GPIO14 = Change Trigger (Input Active Low, for video game mode changes)
+    D6 / GPIO12 = Vent Trigger (Input Active Low)
+    D7 / GPIO13 = Enable Trigger (Input Active Low, for turning on the lights)
+    D8 / GPIO15 = Shift Enable (Output Active High, for turning on the logic shifter)
 
 ## Lightmodes
 
