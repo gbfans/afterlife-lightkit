@@ -14,7 +14,7 @@ This is the code repository for the Afterlife Light Kit, coming soon!
 * Ability to select preferred animations for each Video Game mode. Switch between 1984 animation and Afterlife animations. Enable or disable start up / shut down animations.
 * Number of LEDs for each light output should be configurable so smaller LED rings can be used for smaller packs.
 * Vent light LED ring
-* Powercell LED ring
+* Powercell LED bar graph
 
 ## Hardware Pin Configuration
 
