@@ -1,8 +1,8 @@
 # Afterlife Light Kit
 This is the code repository for the Afterlife Light Kit, coming soon!
 
-![PCB: Front](images/afterlife-pcb.png)
-![PCB: Back](images/afterlife-pcb2.png)
+![PCB: Front](HARDWARE/images/afterlife-pcb.png)
+![PCB: Back](HARDWARE/images/afterlife-pcb2.png)
 
 ## Project Goals
 * Recreate Cyclotron effect from Ghostbusters Afterlife.
