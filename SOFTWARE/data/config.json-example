@@ -1,0 +1,97 @@
+{
+  "setup": {
+    "powercell": {
+      "pin": "GPIO0",
+      "num_of_leds": 15,
+      "brightness": 255,
+      "speed": 10
+    },
+    "cycltron": {
+      "pin": "GPIO5",
+      "num_of_leds": 40,
+      "brightness": 255,
+      "speed": 50
+    },
+    "vent": {
+      "pin": "GPIO4",
+      "num_of_leds": 10,
+      "brightness": 255,
+      "speed": 10
+    }
+  },
+  "state": {
+    "startup": {
+      "powercell_pattern": "standard",
+      "duration": 5,
+      "vent": "off"
+    },
+    "idle": {
+      "cyclotron_speed": "random",
+      "vent": "off"
+    },
+    "firing": {
+      "duration": 15,
+      "automatic_venting": true,
+      "venting_time": 5,
+      "vent": "off"
+    },
+    "venting": {
+      "powercell_pattern": "static",
+      "cyclotron_pattern": "fadeout",
+      "duration": 5
+    },
+    "restart": {
+      "repeat_startup": false,
+      "duration": 0,
+      "vent": "off"
+    },
+    "shutdown": {
+      "powercell_pattern": "countdown",
+      "cyclotron": "slowdown",
+      "duration": 5,
+      "vent": "off"
+    }
+  },
+  "modes": {
+    "standard": {
+      "powercell_color": "blue",
+      "powercell_pattern": "scroll",
+      "cyclotron_color": "red",
+      "cyclotron_pattern": "smooth",
+      "vent_color": "white",
+      "pattern": "strobe"
+    },
+    "slime": {
+      "powercell_color": "green",
+      "powercell_pattern": "level",
+      "cyclotron_color": "green",
+      "cyclotron_pattern": "fluid",
+      "vent_color": "green",
+      "vent_pattern": "spin"
+    },
+    "meson": {
+      "powercell_color": "yellow",
+      "powercell_pattern": "level",
+      "cyclotron_color": "yellow",
+      "cyclotron_pattern": "fade",
+      "vent_color": "red",
+      "vent_pattern": "glow"
+    },
+    "stasis": {
+      "powercell_color": "blue",
+      "powercell_pattern": "level",
+      "cyclotron_color": "blue",
+      "pattern": "electric",
+      "vent_color": "white",
+      "vent_pattern": "glow"
+    },
+    "party":{
+      "powercell_color": "rainbow",
+      "powercell_pattern": "strobe",
+      "cyclotron_color": "rainbow",
+      "pattern": "smooth",
+      "vent_color": "rainbow",
+      "vent_pattern": "spin"
+    }
+  }
+}
