@@ -9,8 +9,6 @@
 void setup() {
 
   Serial.begin(115200);
-  
-  // put your setup code here, to run once:
 
   if(!LittleFS.begin()){
     /*
@@ -27,30 +25,23 @@ void setup() {
     Serial.println("Opening config file failed.");
   }
 
-  String content;
+  StaticJsonDocument<512> doc;
   if (configFile.available())
   {
-    content = configFile.readString();
+    doc = configFile.readString();
   }
   configFile.close();
-
-  char json[content.length()];
-
-  serializeJsonPretty(content, Serial);
-  
+  serializeJsonPretty(doc, Serial);
   EEPROM.begin(4098);
 
   EepromStream eepromStream(0, 4098);
-  serializeJson(content, eepromStream);
-  eepromStream.flush();
+  serializeJson(doc, eepromStream);
+  eepromStream.flush(); 
 
-
-  DynamicJsonDocument doc2(4098);
+  StaticJsonDocument<512> doc2;
   deserializeJson(doc2, eepromStream);
+  serializeJsonPretty(doc2, Serial);
 
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-
-}
+void loop() {}
