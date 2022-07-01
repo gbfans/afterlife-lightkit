@@ -28,7 +28,7 @@ This is the code repository for the Afterlife Light Kit, coming soon!
 | `D4 / GPIO2` | Unused |
 | `D5 / GPIO14` | Change Trigger (Input Active Low, for video game mode changes) |
 | `D6 / GPIO12` | Vent Trigger (Input Active Low) |
-| `D7 / GPIO13` | Enable Trigger (Input Active Low, for turning on the lights) |
+| `D7 / GPIO13` | Enable Trigger (Input Active High, for turning on the lights) |
 | `D8 / GPIO15` | Shift Enable (Output Active High, for turning on the logic shifter) |
 
 ## Lightmodes
