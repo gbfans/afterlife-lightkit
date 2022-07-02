@@ -29,7 +29,7 @@ void ConfigManager::init()
     // Allocate a temporary JsonDocument
     // Don't forget to change the capacity to match your requirements.
     // Use arduinojson.org/v6/assistant to compute the capacity.
-    StaticJsonDocument<512> doc;
+    StaticJsonDocument<1024> doc;
     if (configFile.available())
     {
         DeserializationError error = deserializeJson(doc, configFile);
@@ -39,6 +39,11 @@ void ConfigManager::init()
     }
 
     configFile.close();
+    
+    /**
+     * Output JSON Configuration as read for debugging.
+     */
+     serializeJsonPretty(doc, Serial);
 
     /**
      * TODO: How do we abstract this out?
