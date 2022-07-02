@@ -1,0 +1,53 @@
+{
+    "hardware": {
+        "powercell": {
+            "length": 15
+        },
+        "cyclotron": {
+            "length": 60
+        }
+    },
+    "defaults": {
+        "mode": "afterlife"
+    },
+    "modes": {
+        "afterlife": {
+            "powercell": {
+                "speed": 40,
+                "color": {
+                    "red": 0,
+                    "green": 0,
+                    "blue": 255
+                }
+            },
+            "cyclotron": {
+                "speed": 5,
+                "direction": "forward",
+                "color": {
+                    "red": 255,
+                    "green": 0,
+                    "blue": 0
+                }
+            }
+        },
+        "classic": {
+            "powercell": {
+                "speed": 40,
+                "color": {
+                    "red": 0,
+                    "green": 0,
+                    "blue": 255
+                }
+            },
+            "cyclotron": {
+                "speed": 300,
+                "direction": "forward",
+                "color": {
+                    "red": 255,
+                    "green": 0,
+                    "blue": 0
+                }
+            }
+        }
+    }
+}
