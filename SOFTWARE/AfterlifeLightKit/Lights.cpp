@@ -1,5 +1,6 @@
 #include "Lights.h"
 #include "ConfigManager.h"
+#include "FX.h"
 
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 
@@ -25,130 +26,55 @@ void Lights::init(ConfigManager configManager)
 {
     _configManager = configManager;
 
-    // TODO: Get Pins/Length from Config
-    _hardwareConfiguration = _configManager.getHardwareConfiguration();
     _configuration = _configManager.getConfiguration();
     _settings = _configManager.getModeSettings(_configuration.defaultMode);
 
-    _powercellLength = _hardwareConfiguration.Powercell.length;
-    _cyclotronLength = _hardwareConfiguration.Cyclotron.length;
-
-    FastLED.addLeds<WS2812B_noflicker, POWERCELL_PIN, GRB>(_powercellLEDS, _powercellLength);
-    FastLED.addLeds<WS2812B_noflicker, CYCLOTRON_PIN, GRB>(_cyclotronLEDS, _cyclotronLength);
+    FastLED.addLeds<WS2812B_noflicker, POWERCELL_PIN, GRB>(_powercellLEDS, POWERCELL_LENGTH);
+    FastLED.addLeds<WS2812B_noflicker, CYCLOTRON_PIN, GRB>(_cyclotronLEDS, CYCLOTRON_LENGTH);
 
     FastLED.clear();
     FastLED.show();
-}
 
-void Lights::tickPowercell()
-{
-    if (!_checkTimer(_previousPowercellMillis, _settings.powercell.speed))
-    {
-        return;
-    }
-
-    CRGB ledColor(
-        _settings.powercell.color.red,
-        _settings.powercell.color.green,
-        _settings.powercell.color.blue
+    _powercellFX.init(
+        _powercellLEDS,
+        POWERCELL_LENGTH,
+        CRGB(
+            _settings.powercell.color.red,
+            _settings.powercell.color.green,
+            _settings.powercell.color.blue
+        ),
+        _settings.powercell.direction,
+        _settings.powercell.speed
     );
+    _powercellFX.setEffect(SPINNING);
 
-    /**
-     * TODO: This is where we hand over to the specific animation
-     *       eg:
-     *          Classic:
-     *              Startup
-     *              Idle
-     *              Firing
-     *              Overheating
-     *              Venting
-     *              Shutdown
-     *          Afterlife:
-     *              Startup
-     *              Idle
-     *              Firing
-     *              Overheating
-     *              Venting
-     *              Shutdown
-     * We may need to create a separate class for each Mode
-     */
-    for (uint16_t i = 0; i < _powercellLength; i++)
-    {
-        /**
-         * Illuminate Powercell LEDs up to and including the current LED,
-         * Set the others to black.
-         */
-        _powercellLEDS[i] = (i <= _currentPowercell) ? ledColor : CRGB::Black;
-    }
-
-    _currentPowercell = _getNextPixel(_currentPowercell, _powercellLength, _settings.powercell.direction);
-
-    //Reverse the direction at the top.
-    if ((_currentPowercell == 0) && (_settings.powercell.direction == FORWARD))
-    {
-        _settings.powercell.direction = REVERSE;
-        _currentPowercell = _powercellLength-1;
-    }
-    else if ((_currentPowercell == 0) && (_settings.powercell.direction == REVERSE))
-    {
-        _settings.powercell.direction = FORWARD;
-    }
-    
-    _isDirty = true;
-}
-
-void Lights::tickCyclotron()
-{
-    if (!_checkTimer(_previousCyclotronMillis, _settings.cyclotron.speed))
-    {
-        return;
-    }
-
-    CRGB ledColor(
-        _settings.cyclotron.color.red,
-        _settings.cyclotron.color.green,
-        _settings.cyclotron.color.blue
+    _cyclotronFX.init(
+        _cyclotronLEDS,
+        CYCLOTRON_LENGTH,
+        CRGB(
+            _settings.cyclotron.color.red,
+            _settings.cyclotron.color.green,
+            _settings.cyclotron.color.blue
+        ),
+        _settings.cyclotron.direction,
+        _settings.cyclotron.speed
     );
-
-    for (uint16_t i = 0; i < _cyclotronLength; i++)
-    {
-        _cyclotronLEDS[i] = (i == _currentCyclotron) ? ledColor : CRGB::Black;
-    }
-
-    _currentCyclotron = _getNextPixel(_currentCyclotron, _cyclotronLength, _settings.cyclotron.direction);
-
-    _isDirty = true;
-}
-
-/**
- * Determine which pixel is next, depending on the direction of movement
- */
-int Lights::_getNextPixel(int currentPixel, int stripLength, Directions direction)
-{
-    // TODO: Add support for an offset/start position
-    if (direction == REVERSE) {
-        currentPixel--;
-        if (currentPixel < 0) {
-            currentPixel = stripLength - 1;
-        }
-
-        return currentPixel;
-    }
-
-    currentPixel++;
-    if (currentPixel >= stripLength) {
-        // Back to start
-        currentPixel = 0;
-    }
-
-    return currentPixel;
+    _cyclotronFX.setEffect(CYCLING);
 }
 
 void Lights::update()
 {
     _isDirty = false;
-    tickCyclotron();
-    tickPowercell();
+
+    if(_powercellFX.update()) {
+        // Something updated
+        _isDirty = true;
+    }
+
+    if(_cyclotronFX.update()) {
+        // Something updated
+        _isDirty = true;
+    }
 
     if (_isDirty)
     {
@@ -159,16 +85,33 @@ void Lights::update()
 
 void Lights::setMode(MODES mode)
 {
-    _mode = mode;
+    _currentMode = mode;
 }
 
-bool Lights::_checkTimer(unsigned long &previous, unsigned long interval)
+void Lights::setState(PACKSTATES state)
 {
-    if (millis() - previous >= interval)
-    {
-        previous = millis();
-        return true;
-    }
+    _currentState = state;
+    /**
+     * TODO: Changing the State or the Mode
+     *       will need to change the Cyclotron/Powercell FX animations.
+     *       e.g. If current State is 'IDLE' and new State is 'FIRING',
+     *            we need to access the correct FX configuration based on
+     *            the current mode, and then apply this to the applicable
+     *            FX instances. So this could require:
+     *            - Change Speed (eg 'Afterlife Firing Speed: 10ms')
+     *            - Change Color (eg 'Afterlife Firing Color: Blue')
+     *            - Change Effect (eg 'Afterlife Firing Effect: Spinning')
+     *            - Change Direction (eg 'Afterlife Firing Direction: Reverse')
+     *            All of these are configurable by the user.
+     */
+}
 
-    return false;
+/**
+ * TODO: Remove this as setState and setMode will handle changing
+ *       these values based on Configuration.
+ * This demo function changes the speed of the Cyclotron.
+ */
+void Lights::testChangeCyclotronSpeed(int newSpeed, int delay)
+{
+    _cyclotronFX.changeSpeed(newSpeed, delay, CUBIC_OUT);
 }

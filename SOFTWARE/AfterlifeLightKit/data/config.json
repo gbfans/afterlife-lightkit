@@ -1,12 +1,4 @@
 {
-    "hardware": {
-        "powercell": {
-            "length": 15
-        },
-        "cyclotron": {
-            "length": 60
-        }
-    },
     "defaults": {
         "mode": "afterlife"
     },
@@ -21,7 +13,7 @@
                 }
             },
             "cyclotron": {
-                "speed": 5,
+                "speed": 10,
                 "direction": "forward",
                 "color": {
                     "red": 255,

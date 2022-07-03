@@ -39,7 +39,7 @@ void ConfigManager::init()
     }
 
     configFile.close();
-    
+
     /**
      * Output JSON Configuration as read for debugging.
      */
@@ -48,9 +48,6 @@ void ConfigManager::init()
     /**
      * TODO: How do we abstract this out?
      */
-    _hardwareConfiguration.Powercell.length = doc["hardware"]["powercell"]["length"] | 15;
-    _hardwareConfiguration.Cyclotron.length = doc["hardware"]["cyclotron"]["length"] | 60;
-
     //_configuration.classicSettings.powercellSpeed = doc["modes"]["classic"]["powercell"]["speed"] | 1000;
 
 
@@ -60,9 +57,9 @@ void ConfigManager::init()
     _configuration.afterlifeSettings.powercell.color.blue = doc["modes"]["afterlife"]["powercell"]["color"]["blue"];
 
     _configuration.afterlifeSettings.cyclotron.speed = doc["modes"]["afterlife"]["cyclotron"]["speed"] | 5;
-    Directions cyclotronDirection = FORWARD;
+    DIRECTIONS cyclotronDirection = LIGHTS_FORWARD;
     if (doc["modes"]["afterlife"]["cyclotron"]["direction"] == "reverse") {
-        cyclotronDirection = REVERSE;
+        cyclotronDirection = LIGHTS_REVERSE;
     }
     _configuration.afterlifeSettings.cyclotron.direction = cyclotronDirection;
 
@@ -76,11 +73,6 @@ void ConfigManager::init()
     // EepromStream eepromStream(0, 4098);
     // serializeJson(doc, eepromStream);
     // eepromStream.flush();
-}
-
-HardwareConfiguration ConfigManager::getHardwareConfiguration()
-{
-    return _hardwareConfiguration;
 }
 
 Configuration ConfigManager::getConfiguration()

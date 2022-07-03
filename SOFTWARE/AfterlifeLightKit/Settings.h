@@ -1,10 +1,19 @@
+#ifndef SETTINGS_h
+#define SETTINGS_h
+
+#include <Ramp.h>
+
+// Which pins the Powercell & Cyclotron are connected to
 #define POWERCELL_PIN 0
 #define CYCLOTRON_PIN 5
 
-enum Directions
-{
-    FORWARD,
-    REVERSE
+// How many LEDS in each?
+#define POWERCELL_LENGTH 15
+#define CYCLOTRON_LENGTH 60
+
+enum DIRECTIONS {
+    LIGHTS_FORWARD,
+    LIGHTS_REVERSE
 };
 
 enum MODES
@@ -15,19 +24,20 @@ enum MODES
     REBOOT,
 };
 
-struct LightStrip
+enum PACKSTATES
 {
-    int length;
-    // GRB/RGB
-    // WS2812B/WS2811 (or FastLed type?)
+    INACTIVE,
+    START,
+    IDLE,
+    FIRING,
+    OVERHEATING,
+    VENTING,
+    SHUTDOWN,
 };
 
-struct HardwareConfiguration
-{
-    // Default length of a Powercell should be 15 LEDs
-    LightStrip Powercell = {15};
-    // Default length of Cyclotron should be 60 LEDs
-    LightStrip Cyclotron = {60};
+enum LIGHT_EFFECTS {
+    CYCLING,
+    SPINNING
 };
 
 struct RGBColor {
@@ -38,14 +48,14 @@ struct RGBColor {
 
 struct PowercellSettings
 {
-    Directions direction;
+    DIRECTIONS direction;
     int speed;
     RGBColor color;
 };
 
 struct CyclotronSettings
 {
-    Directions direction;
+    DIRECTIONS direction;
     int speed;
     RGBColor color;
 };
@@ -63,3 +73,5 @@ struct Configuration
     Settings classicSettings;
     Settings afterlifeSettings;
 };
+
+#endif
