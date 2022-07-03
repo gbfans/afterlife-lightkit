@@ -52,6 +52,9 @@ void ConfigManager::init()
     _hardwareConfiguration.Cyclotron.length = doc["hardware"]["cyclotron"]["length"] | 60;
 
     //_configuration.classicSettings.powercellSpeed = doc["modes"]["classic"]["powercell"]["speed"] | 1000;
+    _configuration.afterlifeSettings.powercell.speed = doc["modes"]["afterlife"]["powercell"]["brightness"] | 255;
+    _configuration.afterlifeSettings.powercell.speed = doc["modes"]["afterlife"]["cyclotron"]["brightness"] | 255;
+    
 
 
     _configuration.afterlifeSettings.powercell.speed = doc["modes"]["afterlife"]["powercell"]["speed"] | 50;
@@ -60,9 +63,9 @@ void ConfigManager::init()
     _configuration.afterlifeSettings.powercell.color.blue = doc["modes"]["afterlife"]["powercell"]["color"]["blue"];
 
     _configuration.afterlifeSettings.cyclotron.speed = doc["modes"]["afterlife"]["cyclotron"]["speed"] | 5;
-    Directions cyclotronDirection = FORWARD;
+    Directions cyclotronDirection = LIGHTS_FORWARD;
     if (doc["modes"]["afterlife"]["cyclotron"]["direction"] == "reverse") {
-        cyclotronDirection = REVERSE;
+        cyclotronDirection = LIGHTS_REVERSE;
     }
     _configuration.afterlifeSettings.cyclotron.direction = cyclotronDirection;
 
