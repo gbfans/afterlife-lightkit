@@ -83,6 +83,17 @@ void Lights::tickPowercell()
 
     _currentPowercell = _getNextPixel(_currentPowercell, _powercellLength, _settings.powercell.direction);
 
+    //Reverse the direction at the top.
+    if ((_currentPowercell == 0) && (_settings.powercell.direction == FORWARD))
+    {
+        _settings.powercell.direction = REVERSE;
+        _currentPowercell = _powercellLength-1;
+    }
+    else if ((_currentPowercell == 0) && (_settings.powercell.direction == REVERSE))
+    {
+        _settings.powercell.direction = FORWARD;
+    }
+    
     _isDirty = true;
 }
 
