@@ -3,8 +3,8 @@
 
 enum Directions
 {
-    FORWARD,
-    REVERSE
+    LIGHTS_FORWARD,
+    LIGHTS_REVERSE
 };
 
 enum MODES
@@ -18,6 +18,8 @@ enum MODES
 struct LightStrip
 {
     int length;
+    unsigned char speed;
+    unsigned char brightness;
     // GRB/RGB
     // WS2812B/WS2811 (or FastLed type?)
 };
