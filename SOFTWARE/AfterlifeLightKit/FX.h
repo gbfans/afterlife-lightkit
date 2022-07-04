@@ -28,6 +28,8 @@ class FX {
     private:
         void _cycling();
         void _spinning();
+        void _rainbow();
+        void _rainbowScroll();
         // void _ascend();
         // void _descend();
         // void _ascendDescend();

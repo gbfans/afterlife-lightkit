@@ -57,6 +57,12 @@ bool FX::update()
         case SPINNING:
             _spinning();
             break;
+        case RAINBOW:
+            _rainbow();
+            break;
+        case RAINBOW_SCROLL:
+            _rainbowScroll();
+            break;
         default:
             Serial.print("Unknown: ");
             Serial.println(_effect);
@@ -91,6 +97,28 @@ void FX::_cycling()
     }
 
     _currentPixel = _getNextPixel();
+}
+
+
+void FX::_rainbow()
+{
+
+      uint8 hue = round(( (float) _currentPixel / (float) (_stripLength-1)) * 255.0);
+      for (uint16_t i = 0; i < _stripLength; i++) {
+        _pixels[i].setHue(hue); 
+      }
+
+    _currentPixel = _getNextPixel();
+  
+}
+
+void FX::_rainbowScroll()
+{
+
+    uint8 hue = round(( (float) _currentPixel / (float) (_stripLength-1)) * 255.0);
+    fill_rainbow( _pixels, _stripLength, hue, 255/_stripLength );
+    _currentPixel = _getNextPixel();
+  
 }
 
 /**

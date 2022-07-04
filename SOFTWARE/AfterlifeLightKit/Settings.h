@@ -45,7 +45,9 @@ enum PACKSTATES
 
 enum LIGHT_EFFECTS {
     CYCLING,
-    SPINNING
+    SPINNING,
+    RAINBOW,
+    RAINBOW_SCROLL
 };
 
 struct RGBColor {
