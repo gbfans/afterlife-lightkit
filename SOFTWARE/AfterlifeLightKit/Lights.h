@@ -19,7 +19,8 @@ class Lights {
         void setState(PACKSTATES state);
 
         // TODO: Remove this test method
-        void testChangeCyclotronSpeed(int newSpeed, int delay);
+        void testChangeCyclotronSpeed(unsigned char newSpeed, int delay);
+        void testChangeCyclotronBrightness(unsigned char newSpeed, int delay);
     private:
         // Private Properties
         bool _isDirty = false;

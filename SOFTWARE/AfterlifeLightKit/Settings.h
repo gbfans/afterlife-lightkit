@@ -11,6 +11,13 @@
 #define POWERCELL_LENGTH 15
 #define CYCLOTRON_LENGTH 60
 
+//Define the default Hardware pins
+#define ENABLE_BTN_PIN  13  //Enable lights (ACTIVE HIGH)
+#define FIRE_BTN_PIN    16  //Trigger firing (ACTIVE LOW)
+#define VENT_BTN_PIN    12  //Trigger venting (ACTIVE LOW
+#define CHANGE_BTN_PIN  14  //Change between video game modes (ACTIVE LOW)
+#define SHIFT_PIN       15  //Enable logic shifter (ACTIVE HIGH)
+
 enum DIRECTIONS {
     LIGHTS_FORWARD,
     LIGHTS_REVERSE
@@ -33,6 +40,7 @@ enum PACKSTATES
     OVERHEATING,
     VENTING,
     SHUTDOWN,
+    PARTY
 };
 
 enum LIGHT_EFFECTS {

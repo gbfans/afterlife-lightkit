@@ -67,19 +67,21 @@ void Lights::update()
     _isDirty = false;
 
     if(_powercellFX.update()) {
-        // Something updated
+        FastLED[0].showLeds(_powercellFX.updateBrightness());
         _isDirty = true;
     }
 
     if(_cyclotronFX.update()) {
+        FastLED[1].showLeds(_cyclotronFX.updateBrightness());
         // Something updated
-        _isDirty = true;
+        _isDirty = true;        
     }
 
     if (_isDirty)
     {
         // Write LEDs
-        FastLED.show();
+        //FastLED.show();
+        //By not using the .show() function and instead individual .showLeds() functions, you have independant control over the brightness.
     }
 }
 
@@ -104,6 +106,35 @@ void Lights::setState(PACKSTATES state)
      *            - Change Direction (eg 'Afterlife Firing Direction: Reverse')
      *            All of these are configurable by the user.
      */
+
+     Serial.print("State changed to: ");
+     switch (_currentState)
+     {
+          case INACTIVE:
+          Serial.println("inactive");
+          break;
+          case START:
+          Serial.println("start");
+          break;
+          case IDLE:
+          Serial.println("idle");
+          break;
+          case FIRING:
+          Serial.println("firing");
+          break;
+          case OVERHEATING:
+          Serial.println("overheating");
+          break;
+          case VENTING:
+          Serial.println("venting");
+          break;
+          case SHUTDOWN:
+          Serial.println("shutdown");
+          break;
+          case PARTY:
+          Serial.println("party");
+          break;
+     }
 }
 
 /**
@@ -111,7 +142,12 @@ void Lights::setState(PACKSTATES state)
  *       these values based on Configuration.
  * This demo function changes the speed of the Cyclotron.
  */
-void Lights::testChangeCyclotronSpeed(int newSpeed, int delay)
+void Lights::testChangeCyclotronSpeed(unsigned char newSpeed, int delay)
 {
-    _cyclotronFX.changeSpeed(newSpeed, delay, CUBIC_OUT);
+    _cyclotronFX.changeSpeed(newSpeed, delay, QUADRATIC_INOUT);
+}
+
+void Lights::testChangeCyclotronBrightness(unsigned char newBrightness, int delay)
+{
+    _cyclotronFX.changeBrightness(newBrightness, delay, CUBIC_OUT);
 }

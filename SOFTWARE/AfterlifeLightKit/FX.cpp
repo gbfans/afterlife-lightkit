@@ -10,9 +10,11 @@ void FX::init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction
     _ledColor = ledColor;
     _direction = direction;
     _speed = speed;
+    _brightness = 50; //temp value
 
     // Start at default speed
     _speedRamp.go(_speed);
+    _brightnessRamp.go(_brightness);
 }
 
 void FX::setEffect(LIGHT_EFFECTS effect)
@@ -20,9 +22,19 @@ void FX::setEffect(LIGHT_EFFECTS effect)
     _effect = effect;
 }
 
-void FX::changeSpeed(int newSpeed, int delay, ramp_mode rampMode)
+void FX::changeSpeed(unsigned char newSpeed, int delay, ramp_mode rampMode)
 {
     _speedRamp.go(newSpeed, delay, rampMode, ONCEFORWARD);
+}
+
+void FX::changeBrightness(unsigned char newBrightness, int delay, ramp_mode rampMode)
+{
+    _brightnessRamp.go(newBrightness, delay, rampMode, ONCEFORWARD);
+}
+
+int FX::updateBrightness()
+{
+      return _brightnessRamp.update();
 }
 
 bool FX::update()
@@ -32,6 +44,10 @@ bool FX::update()
     }
 
     _speed = _speedRamp.update();
+
+    /*
+     *  If speed is equal to 255, movement should probably just be stopped and LEDs off.
+     */
 
     switch (_effect)
     {

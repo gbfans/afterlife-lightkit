@@ -13,7 +13,10 @@ class FX {
         // Set which effect to do
         void setEffect(LIGHT_EFFECTS effect);
         // Change the speed of the animation
-        void changeSpeed(int newSpeed, int delay, ramp_mode rampMode);
+        void changeSpeed(unsigned char newSpeed, int delay, ramp_mode rampMode);
+        // Call every 1ms to get the next pixel data
+        void changeBrightness(unsigned char newSpeed, int delay, ramp_mode rampMode);
+        int updateBrightness();
         // Call every 1ms to get the next pixel data
         bool update();
         // Start the effect
@@ -38,6 +41,7 @@ class FX {
         int _stripLength;
         int _currentPixel = 0;
         int _speed;
+        int _brightness;
         unsigned long _previousMillis = 0;
         LIGHT_EFFECTS _effect;
         DIRECTIONS _direction;
