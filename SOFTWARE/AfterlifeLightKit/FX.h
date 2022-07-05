@@ -30,6 +30,8 @@ class FX {
         void _spinning();
         void _rainbow();
         void _rainbowScroll();
+        void _cylon();
+        void _fadeall();
         // void _ascend();
         // void _descend();
         // void _ascendDescend();

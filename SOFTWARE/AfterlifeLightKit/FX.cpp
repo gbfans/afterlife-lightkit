@@ -63,6 +63,9 @@ bool FX::update()
         case RAINBOW_SCROLL:
             _rainbowScroll();
             break;
+        case CYLON:
+            _cylon();
+            break;
         default:
             Serial.print("Unknown: ");
             Serial.println(_effect);
@@ -84,6 +87,17 @@ void FX::_spinning()
     }
 
     _currentPixel = _getNextPixel();
+
+    if ((_currentPixel == 0) && (_direction == LIGHTS_FORWARD))
+    {
+        _direction = LIGHTS_REVERSE;
+        _currentPixel = _stripLength-1;
+    }
+    else if ((_currentPixel == 0) && (_direction == LIGHTS_REVERSE))
+    {
+        _direction = LIGHTS_FORWARD;
+    }
+    
 }
 
 void FX::_cycling()
@@ -119,6 +133,36 @@ void FX::_rainbowScroll()
     fill_rainbow( _pixels, _stripLength, hue, 255/_stripLength );
     _currentPixel = _getNextPixel();
   
+}
+
+void FX::_cylon()
+{
+    uint8 hue = round((float) _currentPixel / (float) (_stripLength-1));
+    _fadeall();
+    _pixels[_currentPixel].setHue(hue);
+    _currentPixel = _getNextPixel();
+
+    if ((_currentPixel == 0) && (_direction == LIGHTS_FORWARD))
+    {
+        _direction = LIGHTS_REVERSE;
+        _currentPixel = _stripLength-1;
+    }
+    else if ((_currentPixel == 0) && (_direction == LIGHTS_REVERSE))
+    {
+        _direction = LIGHTS_FORWARD;
+    }
+    
+}
+
+/*
+ * Test function. Supposed to fade out LEDs slowly.
+ */
+void FX::_fadeall()
+{
+    for(int i = 0; i < _stripLength; i++)
+    {
+      _pixels[i].nscale8(225);
+    }
 }
 
 /**
