@@ -66,6 +66,9 @@ bool FX::update()
         case CYLON:
             _cylon();
             break;
+        case ALTERNATE:
+            _alternate();
+            break;
         default:
             Serial.print("Unknown: ");
             Serial.println(_effect);
@@ -152,6 +155,14 @@ void FX::_cylon()
         _direction = LIGHTS_FORWARD;
     }
     
+}
+
+void FX::_alternate()
+{
+    for (uint16_t i = 0; i < _stripLength; i++) {
+        _pixels[i] = (_currentPixel%2 == i%2) ? _ledColor : CRGB::Black;
+    }
+    _currentPixel = _getNextPixel();
 }
 
 /*

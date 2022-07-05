@@ -48,7 +48,8 @@ enum LIGHT_EFFECTS {
     SPINNING,
     RAINBOW,
     RAINBOW_SCROLL,
-    CYLON
+    CYLON,
+    ALTERNATE
 };
 
 struct RGBColor {
