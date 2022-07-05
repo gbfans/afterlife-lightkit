@@ -1,10 +1,26 @@
+#ifndef SETTINGS_h
+#define SETTINGS_h
+
+#include <Ramp.h>
+
+// Which pins the Powercell & Cyclotron are connected to
 #define POWERCELL_PIN 0
 #define CYCLOTRON_PIN 5
 
-enum Directions
-{
-    FORWARD,
-    REVERSE
+// How many LEDS in each?
+#define POWERCELL_LENGTH 15
+#define CYCLOTRON_LENGTH 60
+
+//Define the default Hardware pins
+#define ENABLE_BTN_PIN  13  //Enable lights (ACTIVE HIGH)
+#define FIRE_BTN_PIN    16  //Trigger firing (ACTIVE LOW)
+#define VENT_BTN_PIN    12  //Trigger venting (ACTIVE LOW
+#define CHANGE_BTN_PIN  14  //Change between video game modes (ACTIVE LOW)
+#define SHIFT_PIN       15  //Enable logic shifter (ACTIVE HIGH)
+
+enum DIRECTIONS {
+    LIGHTS_FORWARD,
+    LIGHTS_REVERSE
 };
 
 enum MODES
@@ -15,19 +31,25 @@ enum MODES
     REBOOT,
 };
 
-struct LightStrip
+enum PACKSTATES
 {
-    int length;
-    // GRB/RGB
-    // WS2812B/WS2811 (or FastLed type?)
+    INACTIVE,
+    START,
+    IDLE,
+    FIRING,
+    OVERHEATING,
+    VENTING,
+    SHUTDOWN,
+    PARTY
 };
 
-struct HardwareConfiguration
-{
-    // Default length of a Powercell should be 15 LEDs
-    LightStrip Powercell = {15};
-    // Default length of Cyclotron should be 60 LEDs
-    LightStrip Cyclotron = {60};
+enum LIGHT_EFFECTS {
+    CYCLING,
+    SPINNING,
+    RAINBOW,
+    RAINBOW_SCROLL,
+    CYLON,
+    ALTERNATE
 };
 
 struct RGBColor {
@@ -38,14 +60,14 @@ struct RGBColor {
 
 struct PowercellSettings
 {
-    Directions direction;
+    DIRECTIONS direction;
     int speed;
     RGBColor color;
 };
 
 struct CyclotronSettings
 {
-    Directions direction;
+    DIRECTIONS direction;
     int speed;
     RGBColor color;
 };
@@ -63,3 +85,5 @@ struct Configuration
     Settings classicSettings;
     Settings afterlifeSettings;
 };
+
+#endif
