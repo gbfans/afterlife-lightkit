@@ -38,11 +38,7 @@ void Lights::init(ConfigManager configManager)
     _powercellFX.init(
         _powercellLEDS,
         POWERCELL_LENGTH,
-        CRGB(
-            _settings.powercell.color.red,
-            _settings.powercell.color.green,
-            _settings.powercell.color.blue
-        ),
+        RainbowColors_p,
         _settings.powercell.direction,
         _settings.powercell.speed
     );
@@ -51,15 +47,11 @@ void Lights::init(ConfigManager configManager)
     _cyclotronFX.init(
         _cyclotronLEDS,
         CYCLOTRON_LENGTH,
-        CRGB(
-            _settings.cyclotron.color.red,
-            _settings.cyclotron.color.green,
-            _settings.cyclotron.color.blue
-        ),
+        RainbowColors_p,
         _settings.cyclotron.direction,
         _settings.cyclotron.speed
     );
-    _cyclotronFX.setEffect(CYCLING);
+    _cyclotronFX.setEffect(CYLON);
 }
 
 void Lights::update()

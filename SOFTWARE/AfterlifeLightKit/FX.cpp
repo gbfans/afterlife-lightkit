@@ -1,4 +1,5 @@
 #include "FX.h"
+#include "Color.h"
 
 #define FASTLED_INTERNAL //remove annoying pragma messages
 #include "FastLED.h"
@@ -10,7 +11,21 @@ void FX::init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction
     _ledColor = ledColor;
     _direction = direction;
     _speed = speed;
-    _brightness = 50; //temp value
+    _brightness = 10; //temp value
+
+    // Start at default speed
+    _speedRamp.go(_speed);
+    _brightnessRamp.go(_brightness);
+}
+
+void FX::init(CRGB *pixels, int stripLength, CRGBPalette16 palette, DIRECTIONS direction, int speed)
+{
+    _pixels = pixels;
+    _stripLength = stripLength;
+    _palette = palette;
+    _direction = direction;
+    _speed = speed;
+    _brightness = 10; //temp value
 
     // Start at default speed
     _speedRamp.go(_speed);
@@ -86,7 +101,7 @@ void FX::_spinning()
          * Illuminate LEDs up to and including the current LED,
          * Set the others to black.
          */
-        _pixels[i] = (i <= _currentPixel) ? _ledColor : CRGB::Black;
+        _pixels[i] = (i <= _currentPixel) ? _setColor(i) : CRGB::Black;
     }
 
     _currentPixel = _getNextPixel();
@@ -110,7 +125,7 @@ void FX::_cycling()
         /**
          * Illuminate current LED, set the others to black.
          */
-        _pixels[i] = (i == _currentPixel) ? _ledColor : CRGB::Black;
+        _pixels[i] = (i == _currentPixel) ? _setColor(i) : CRGB::Black;
     }
 
     _currentPixel = _getNextPixel();
@@ -140,9 +155,9 @@ void FX::_rainbowScroll()
 
 void FX::_cylon()
 {
-    uint8 hue = round((float) _currentPixel / (float) (_stripLength-1));
+    //uint8 hue = round((float) _currentPixel / (float) (_stripLength-1));
     _fadeall();
-    _pixels[_currentPixel].setHue(hue);
+    _pixels[_currentPixel] = _setColor(_currentPixel);
     _currentPixel = _getNextPixel();
 
     if ((_currentPixel == 0) && (_direction == LIGHTS_FORWARD))
@@ -160,7 +175,7 @@ void FX::_cylon()
 void FX::_alternate()
 {
     for (uint16_t i = 0; i < _stripLength; i++) {
-        _pixels[i] = (_currentPixel%2 == i%2) ? _ledColor : CRGB::Black;
+        _pixels[i] = (_currentPixel%2 == i%2) ? _setColor(i) : CRGB::Black;
     }
     _currentPixel = _getNextPixel();
 }
@@ -208,4 +223,15 @@ bool FX::_checkTimer()
     }
 
     return false;
+}
+
+CRGB FX::_setColor(uint16_t i){
+  if (_ledColor)
+  {
+    return _ledColor;
+  }
+  else if(_palette)
+  {
+    return ColorFromPalette( _palette, round(( (float) i / (float) (_stripLength-1)) * 255.0));
+  }
 }

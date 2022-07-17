@@ -1,16 +1,12 @@
 #include "ConfigManager.h"
 #include "Lights.h"
+#include "Control.h"
 
 ConfigManager config;
 
 MODES mode;
 Lights lights;
-
-#include <Bounce2.h>
-Bounce2::Button enableButton = Bounce2::Button();
-Bounce2::Button fireButton   = Bounce2::Button();
-Bounce2::Button ventButton   = Bounce2::Button();
-Bounce2::Button changeButton = Bounce2::Button();
+Control controls;
 
 void setup()
 {
@@ -23,31 +19,15 @@ void setup()
     digitalWrite(SHIFT_PIN, HIGH);
     pinMode(LED_BUILTIN, OUTPUT);
 
-    /**
-     * Input Configuration
-     */
-    enableButton.attach(ENABLE_BTN_PIN, INPUT_PULLUP);
-    enableButton.interval(5);     // Use a debounce interval of 5 milliseconds
-    enableButton.setPressedState(HIGH);     // INDICATE THAT THE HIGH STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
-     
-    fireButton.attach(FIRE_BTN_PIN, INPUT);
-    fireButton.interval(5);     // Use a debounce interval of 5 milliseconds
-    fireButton.setPressedState(LOW);     // INDICATE THAT THE LOW STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
-    
-    ventButton.attach(VENT_BTN_PIN, INPUT_PULLUP);
-    ventButton.interval(5);     // Use a debounce interval of 5 milliseconds
-    ventButton.setPressedState(LOW);     // INDICATE THAT THE LOW STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
-
-    changeButton.attach(CHANGE_BTN_PIN, INPUT_PULLUP);
-    changeButton.interval(5);     // Use a debounce interval of 5 milliseconds
-    changeButton.setPressedState(LOW);     // INDICATE THAT THE LOW STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
+    controls.init();
 
     config.init();
     lights.init(config);
     lights.setState(INACTIVE);
 
     lights.testChangeCyclotronBrightness(0, 0);
-    lights.testChangeCyclotronSpeed(255, 0);
+    lights.testChangeCyclotronSpeed(20, 0);
+    lights.testChangeCyclotronBrightness(10, 0);
 
 }
 
@@ -55,48 +35,6 @@ void setup()
 // int delayTime = 10000;
 void loop()
 {
+    controls.update();
     lights.update();
-
-    fireButton.update();
-    enableButton.update();
-    ventButton.update();
-    changeButton.update();
-
-    if (enableButton.isPressed())
-    {
-
-        if (enableButton.pressed())
-        {
-            lights.testChangeCyclotronBrightness(50, 10000);
-            lights.testChangeCyclotronSpeed(10, 10000);
-            lights.setState(START); 
-        }
-        else if (fireButton.pressed())
-        {
-            lights.testChangeCyclotronBrightness(255, 2500);
-            lights.testChangeCyclotronSpeed(5, 5000);
-            lights.setState(FIRING);
-        }
-        else if (fireButton.released())
-        {
-            lights.testChangeCyclotronBrightness(50, 2500);
-            lights.testChangeCyclotronSpeed(10, 5000);
-            lights.setState(IDLE);
-        }
-        else if (ventButton.pressed())
-        {
-            lights.setState(VENTING);
-        }
-        else if (changeButton.pressed())
-        {
-            //Changing for videogame mode.
-        }
-
-    }
-    else if (enableButton.released())
-    {
-        lights.testChangeCyclotronSpeed(255, 10000);
-        lights.testChangeCyclotronBrightness(0, 5000);
-        lights.setState(SHUTDOWN);
-    }
 }

@@ -2,6 +2,7 @@
 #include "Settings.h"
 #define FASTLED_INTERNAL // remove annoying pragma messages
 #include "FastLED.h"
+#include "Color.h"
 
 #ifndef FX_h
 #define FX_h
@@ -10,6 +11,7 @@ class FX {
     public:
         // Some kind of initialize
         void init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction, int speed);
+        void init(CRGB *pixels, int stripLength, CRGBPalette16 palette, DIRECTIONS direction, int speed);
         // Set which effect to do
         void setEffect(LIGHT_EFFECTS effect);
         // Change the speed of the animation
@@ -25,6 +27,7 @@ class FX {
         void stop();
         // Reset the effect states back to the original
         void reset();
+        CRGB _setColor(uint16_t i);
     private:
         void _cycling();
         void _spinning();
@@ -51,6 +54,7 @@ class FX {
         LIGHT_EFFECTS _effect;
         DIRECTIONS _direction;
         CRGB _ledColor;
+        CRGBPalette16 _palette;
         ramp _speedRamp;
         ramp _brightnessRamp;
 };

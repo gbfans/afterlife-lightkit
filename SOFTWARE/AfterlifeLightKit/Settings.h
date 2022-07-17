@@ -9,7 +9,7 @@
 
 // How many LEDS in each?
 #define POWERCELL_LENGTH 15
-#define CYCLOTRON_LENGTH 60
+#define CYCLOTRON_LENGTH 40
 
 //Define the default Hardware pins
 #define ENABLE_BTN_PIN  13  //Enable lights (ACTIVE HIGH)
