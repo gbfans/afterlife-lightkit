@@ -32,9 +32,11 @@ class Lights {
         PACKSTATES _currentState;
         FX _powercellFX;
         FX _cyclotronFX;
+        FX _ventFX;
 
         CRGB _powercellLEDS[POWERCELL_LENGTH];
         CRGB _cyclotronLEDS[CYCLOTRON_LENGTH];
+        CRGB _ventLEDS[VENT_LENGTH];
 };
 
 #endif

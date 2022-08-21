@@ -8,6 +8,9 @@ MODES mode;
 Lights lights;
 Control controls;
 
+    unsigned long testLastMillis = 0;
+    int delayTime = 100000;
+
 void setup()
 {
     Serial.begin(115200);
@@ -19,20 +22,14 @@ void setup()
     digitalWrite(SHIFT_PIN, HIGH);
     pinMode(LED_BUILTIN, OUTPUT);
 
-    controls.init();
-
     config.init();
     lights.init(config);
     lights.setState(INACTIVE);
 
-    lights.testChangeCyclotronBrightness(0, 0);
-    lights.testChangeCyclotronSpeed(20, 0);
-    lights.testChangeCyclotronBrightness(10, 0);
-
+    controls.init(lights);
+    
 }
 
-// unsigned long testLastMillis = 0;
-// int delayTime = 10000;
 void loop()
 {
     controls.update();

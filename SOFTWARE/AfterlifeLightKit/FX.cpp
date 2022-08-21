@@ -11,7 +11,7 @@ void FX::init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction
     _ledColor = ledColor;
     _direction = direction;
     _speed = speed;
-    _brightness = 10; //temp value
+    _brightness = 100; //temp value
 
     // Start at default speed
     _speedRamp.go(_speed);
@@ -25,7 +25,7 @@ void FX::init(CRGB *pixels, int stripLength, CRGBPalette16 palette, DIRECTIONS d
     _palette = palette;
     _direction = direction;
     _speed = speed;
-    _brightness = 10; //temp value
+    _brightness = 100; //temp value
 
     // Start at default speed
     _speedRamp.go(_speed);

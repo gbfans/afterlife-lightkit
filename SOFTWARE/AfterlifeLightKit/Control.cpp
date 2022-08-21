@@ -1,29 +1,32 @@
 #include "Control.h"
 #include <Bounce2.h>
+#include "Lights.h"
 
-void Control::init()
+void Control::init(Lights lights)
 {
+
+  _lights = lights;
 
   _enableButton = Bounce2::Button();
   _fireButton   = Bounce2::Button();
   _ventButton   = Bounce2::Button();
   _changeButton = Bounce2::Button();
 
-  _enableButton.attach(ENABLE_BTN_PIN, INPUT);
+  _enableButton.attach(ENABLE_BTN_PIN, INPUT_PULLUP);
   _enableButton.interval(5);     // Use a debounce interval of 5 milliseconds
-  _enableButton.setPressedState(LOW);     // INDICATE THAT THE HIGH STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
+  _enableButton.setPressedState(HIGH);     // INDICATE THAT THE HIGH STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
      
   _fireButton.attach(FIRE_BTN_PIN, INPUT);
   _fireButton.interval(5);     // Use a debounce interval of 5 milliseconds
-  _fireButton.setPressedState(LOW);     // INDICATE THAT THE LOW STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
+  _fireButton.setPressedState(HIGH);     // INDICATE THAT THE LOW STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
     
-  _ventButton.attach(VENT_BTN_PIN, INPUT);
+  _ventButton.attach(VENT_BTN_PIN, INPUT_PULLUP);
   _ventButton.interval(5);     // Use a debounce interval of 5 milliseconds
-  _ventButton.setPressedState(LOW);     // INDICATE THAT THE LOW STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
+  _ventButton.setPressedState(HIGH);     // INDICATE THAT THE LOW STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
 
-  _changeButton.attach(CHANGE_BTN_PIN, INPUT);
+  _changeButton.attach(CHANGE_BTN_PIN, INPUT_PULLUP);
   _changeButton.interval(5);     // Use a debounce interval of 5 milliseconds
-  _changeButton.setPressedState(LOW);     // INDICATE THAT THE LOW STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
+  _changeButton.setPressedState(HIGH);     // INDICATE THAT THE LOW STATE CORRESPONDS TO PHYSICALLY PRESSING THE BUTTON
 
   _fireButton.update();
   _enableButton.update();
@@ -36,13 +39,15 @@ void Control::init()
         && _changeButton.isPressed()) {
 
     _mode = STANDALONE;
-          
+    _fireButton.setPressedState(LOW);
+    _ventButton.setPressedState(LOW);
+    _changeButton.setPressedState(LOW);
+    
   }
   else
   {
     _mode = CONTROLLED;        
   }
-  
 }
 
 void Control::update()
@@ -75,28 +80,34 @@ void Control::_updateStandalone()
         if (_enableButton.pressed())
         {
           //Startup
+          _lights.setState(START);
         }
         else if (_fireButton.pressed())
         {
           //Start firing
+          _lights.setState(FIRING);
         }
         else if (_fireButton.released())
         {
           //Stop firing
+          _lights.setState(IDLE);
         }
         else if (_ventButton.pressed())
         {
           //Start venting
+          _lights.setState(VENTING);
         }
         else if (_changeButton.pressed())
         {
           //Change TVG mode
+          _lights.setMode(SLIME); //Handle check and switch
         }
 
     }
     else if (_enableButton.released())
     {
       //Shutdown
+      _lights.setState(SHUTDOWN);
     }
   
 }
@@ -112,46 +123,59 @@ void Control::_updateControlled()
       break;
     case 1:
       //Power Up
+      _lights.setState(START);
       break;
     case 2:
       //Red Cyclotron Color (Pack Mode)
+      _lights.setMode(CLASSIC);
       break;
     case 3:
       //Green Cyclotron Color (Slime Mode)
+      _lights.setMode(SLIME);
       break;
     case 4:
       //Blue Cyclotron Color (Stasis Mode)
+      _lights.setMode(STASIS);
       break;
     case 5:
       //Orange Cyclotron Color (Meson Mode)
+      _lights.setMode(MESON);
       break;
     case 6:
       //Automatic Venting Mode
+      _lights.setState(FIRING);
       break;
     case 7:
       //Change Cyclotron Color
-      //UNSUPPORTED
+      //Standalone Mode Only
+      //Do Nothing
       break;
     case 8:
       //Normal Operation (Idle)
+       _lights.setState(IDLE);
       break;
     case 9:
       //Venting Strobe Only
       break;
     case 10:
-      //Test Mode
+      //Test Mode 
+      //Do Nothing
       break;
     case 11:
-      //Venting Action with Change in Speed
+      //Venting
+      _lights.setState(VENTING);
       break;
     case 12:
-      //Fire (movie version)
+      //Shut Down
+      _lights.setState(SHUTDOWN);
       break;
     case 13:
       //Fire (TVG mode with overheat)
+      _lights.setState(FIRING);
       break;
     case 14:
       //Power Down
+       _lights.setState(INACTIVE);
       break;
     case 15:
       //Standalone Operation

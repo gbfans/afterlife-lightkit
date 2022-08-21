@@ -31,6 +31,7 @@ void Lights::init(ConfigManager configManager)
 
     FastLED.addLeds<WS2812B_noflicker, POWERCELL_PIN, GRB>(_powercellLEDS, POWERCELL_LENGTH);
     FastLED.addLeds<WS2812B_noflicker, CYCLOTRON_PIN, GRB>(_cyclotronLEDS, CYCLOTRON_LENGTH);
+    FastLED.addLeds<WS2812B_noflicker, VENT_PIN, GRB>(_ventLEDS, VENT_LENGTH);
 
     FastLED.clear();
     FastLED.show();
@@ -51,7 +52,17 @@ void Lights::init(ConfigManager configManager)
         _settings.cyclotron.direction,
         _settings.cyclotron.speed
     );
-    _cyclotronFX.setEffect(CYLON);
+    _cyclotronFX.setEffect(CYCLING);
+
+    _ventFX.init(
+        _ventLEDS,
+        VENT_LENGTH,
+        RainbowColors_p,
+        _settings.vent.direction,
+        _settings.vent.speed
+    );
+    _ventFX.setEffect(ALTERNATE);
+
 }
 
 void Lights::update()
@@ -69,6 +80,12 @@ void Lights::update()
         _isDirty = true;        
     }
 
+    if(_ventFX.update()) {
+        FastLED[2].showLeds(_ventFX.updateBrightness());
+        // Something updated
+        _isDirty = true;        
+    }
+
     if (_isDirty)
     {
         // Write LEDs
@@ -80,6 +97,24 @@ void Lights::update()
 void Lights::setMode(MODES mode)
 {
     _currentMode = mode;
+
+     Serial.print("Mode changed to: ");
+     switch (_currentState)
+     {
+          case CLASSIC:
+          Serial.println("Classic");
+          break;
+          case SLIME:
+          Serial.println("Slime");
+          break;
+          case STASIS:
+          Serial.println("Stasis");
+          break;
+          case MESON:
+          Serial.println("Meson");
+          break;
+     }
+    
 }
 
 void Lights::setState(PACKSTATES state)
@@ -103,28 +138,35 @@ void Lights::setState(PACKSTATES state)
      switch (_currentState)
      {
           case INACTIVE:
-          Serial.println("inactive");
+          Serial.println("Inactive");
+          _cyclotronFX.changeBrightness(0, 0, CUBIC_OUT);
+          _cyclotronFX.changeSpeed(255, 0, QUADRATIC_INOUT);
           break;
           case START:
-          Serial.println("start");
+          Serial.println("Start");
+          _cyclotronFX.changeBrightness(20, 2500, CUBIC_OUT);
+          _cyclotronFX.changeSpeed(20, 5000, QUADRATIC_INOUT);
           break;
           case IDLE:
-          Serial.println("idle");
+          Serial.println("Idle");
           break;
           case FIRING:
-          Serial.println("firing");
+          Serial.println(" Firing");
           break;
           case OVERHEATING:
-          Serial.println("overheating");
+          Serial.println("Overheating");
           break;
           case VENTING:
-          Serial.println("venting");
+          Serial.println("Venting");
           break;
           case SHUTDOWN:
-          Serial.println("shutdown");
+          Serial.println("Shutdown");
           break;
           case PARTY:
-          Serial.println("party");
+          Serial.println("Party");
+          break;
+          case OVERRIDE:
+          Serial.println("Override");
           break;
      }
 }

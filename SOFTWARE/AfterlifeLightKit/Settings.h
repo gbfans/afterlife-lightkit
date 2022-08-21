@@ -4,12 +4,14 @@
 #include <Ramp.h>
 
 // Which pins the Powercell & Cyclotron are connected to
-#define POWERCELL_PIN 0
-#define CYCLOTRON_PIN 5
+#define CYCLOTRON_PIN 5 //D1
+#define VENT_PIN 4      //D2
+#define POWERCELL_PIN 0 //D3
 
 // How many LEDS in each?
 #define POWERCELL_LENGTH 15
 #define CYCLOTRON_LENGTH 40
+#define VENT_LENGTH 16
 
 //Define the default Hardware pins
 #define ENABLE_BTN_PIN  13  //Enable lights (ACTIVE HIGH)
@@ -26,9 +28,9 @@ enum DIRECTIONS {
 enum MODES
 {
     CLASSIC,
-    AFTERLIFE,
-    TVG,
-    REBOOT,
+    SLIME,
+    MESON,
+    STASIS  
 };
 
 enum PACKSTATES
@@ -40,7 +42,8 @@ enum PACKSTATES
     OVERHEATING,
     VENTING,
     SHUTDOWN,
-    PARTY
+    PARTY,
+    OVERRIDE
 };
 
 enum LIGHT_EFFECTS {
@@ -72,16 +75,24 @@ struct CyclotronSettings
     RGBColor color;
 };
 
+struct VentSettings
+{
+    DIRECTIONS direction;
+    int speed;
+    RGBColor color;
+};
+
 struct Settings
 {
     PowercellSettings powercell;
     CyclotronSettings cyclotron;
+    VentSettings vent;
 };
 
 struct Configuration
 {
     // TODO: Make CLASSIC the default mode
-    MODES defaultMode = AFTERLIFE;
+    MODES defaultMode = CLASSIC;
     Settings classicSettings;
     Settings afterlifeSettings;
 };

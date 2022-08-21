@@ -1,5 +1,6 @@
 #include "Settings.h"
 #include <Bounce2.h>
+#include "Lights.h"
 
 #ifndef Control_h
 #define Control_h
@@ -11,7 +12,7 @@ enum CONTROL_MODES {
 
 class Control {
     public:
-      void init();
+      void init(Lights lights);
       void update();
     private:
       Bounce2::Button _enableButton;
@@ -19,6 +20,7 @@ class Control {
       Bounce2::Button _ventButton;
       Bounce2::Button _changeButton;
       CONTROL_MODES _mode;
+      Lights _lights;
       void _updateControlled();
       void _updateStandalone();
       int _controllerMode;
