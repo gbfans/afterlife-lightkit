@@ -1,16 +1,7 @@
-#include <Bounce2.h>
 #include "Control.h"
 
-Bounce2::Button enableButton = Bounce2::Button();
-Bounce2::Button fireButton = Bounce2::Button();
-Bounce2::Button ventButton = Bounce2::Button();
-Bounce2::Button changeButton = Bounce2::Button();
-
-#define ENABLE_BTN_PIN D7 //Enable lights (ACTIVE HIGH)
-#define FIRE_BTN_PIN D0 //Trigger firing (ACTIVE LOW)
-#define VENT_BTN_PIN D6 //Trigger venting (ACTIVE LOW
-#define CHANGE_BTN_PIN D5 //Change between video game modes (ACTIVE LOW)
-#define SHIFT_PIN 15 //Enable logic shifter (ACTIVE HIGH)
+//Enable logic shifter (D8/GPIO15, ACTIVE HIGH)
+#define SHIFT_PIN 15
 
 Control controls;
 
@@ -28,9 +19,22 @@ void setup() {
   controls.init();
 
   Serial.println("Ready...");
-  
+
+  Serial.print("Boot Mode: ");
+  int mode = controls.getMode();
+  if (mode == MODE_STANDALONE) {
+    Serial.println("Standalone");
+  } else {
+    Serial.println("Controlled");
+  }
 }
 
 void loop() {
   controls.update();
+  if (controls.changed()) {
+    Serial.print("CHANGED - Old: ");
+    Serial.print(controls.getPreviousState());
+    Serial.print(", New: ");
+    Serial.println(controls.getCurrentState());
+  }
 }
