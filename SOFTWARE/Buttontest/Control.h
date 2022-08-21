@@ -24,7 +24,8 @@ enum CONTROL_STATES {
   STATE_FIRE_MOVIE, // 12: Fire (movie version)
   STATE_FIRE_TVG, // 13: Fire (TVG, overheat version) (Both modes)
   STATE_POWER_DOWN, // 14: Power Down (both modes)
-  STATE_STANDALONE // 15: Delay -> Power Up -> Idle (Standalone mode only)
+  STATE_STANDALONE, // 15: Delay -> Power Up -> Idle (Standalone mode only)
+  STATE_NONE, // 16: None (ie State has not yet been read)
 };
 
 class Control {
@@ -41,7 +42,6 @@ class Control {
       CONTROL_STATES _previousState;
       bool _isChanged = false;
       int _controllerMode;
-      int _currentInputState = 99;
       unsigned long _lastDebounceTime = 0;
 };
 

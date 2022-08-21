@@ -1,5 +1,4 @@
 #include "Control.h"
-#include "Arduino.h"
 
 /**
  * Input pins from the 10-pin IDC connector to the GBFans Soundboard.
@@ -31,16 +30,10 @@ void Control::init()
   // Load the current state of the inputs at boot
   update();
 
-  // Serial.println();
-  // Serial.print("First Boot State: ");
-  // Serial.println(_currentInputState);
-
   if (_currentState == STATE_STANDALONE) {
     _mode = MODE_STANDALONE;
-    //Serial.println("Standalone Mode");
   } else {
     _mode = MODE_CONTROLLED;
-    //Serial.println("Controlled Mode");
   }
 }
 
@@ -51,7 +44,7 @@ void Control::update()
 {
   _isChanged = false;
 
-  if ((millis() - _lastDebounceTime) <= INPUT_DEBOUNCE_DELAY && _currentInputState < 99) {
+  if ((millis() - _lastDebounceTime) <= INPUT_DEBOUNCE_DELAY && _currentState != STATE_NONE) {
     /**
      * Debounce interval has not been met, or we have never read the inputs (eg on first boot)
      */
@@ -72,70 +65,70 @@ void Control::update()
     inputState += 8;
   }
 
-  if (inputState != _currentInputState) {
+  CONTROL_STATES newState;
+
+  switch (inputState) {
+    case 1:
+      newState = STATE_POWER_UP;
+      break;
+    case 2:
+      newState = STATE_RED_CYCLOTRON;
+      break;
+    case 3:
+      newState = STATE_GREEN_CYCLOTRON;
+      break;
+    case 4:
+      newState = STATE_BLUE_CYCLOTRON;
+      break;
+    case 5:
+      newState = STATE_ORANGE_CYCLOTRON;
+      break;
+    case 6:
+      newState = STATE_AUTOMATIC_VENTING;
+      break;
+    case 7:
+      newState = STATE_CHANGE_CYCLOTRON_COLOR;
+      break;
+    case 8:
+      newState = STATE_IDLE;
+      break;
+    case 9:
+      newState = STATE_VENT_STROBE;
+      break;
+    case 10:
+      newState = STATE_TEST_MODE;
+      break;
+    case 11:
+      newState = STATE_VENTING_ACTION;
+      break;
+    case 12:
+      newState = STATE_FIRE_MOVIE;
+      break;
+    case 13:
+      newState = STATE_FIRE_TVG;
+      break;
+    case 14:
+      newState = STATE_POWER_DOWN;
+      break;
+    case 15:
+      newState = STATE_STANDALONE;
+      break;
+    case 0:
+    default:
+      newState = STATE_OFF;
+      break;
+  }
+
+  if (newState != _currentState) {
     // Input has changed
     // Serial.print("Changed! - Old: ");
-    // Serial.print(_currentInputState);
+    // Serial.print(_currentState);
     // Serial.print(", New: ");
-    // Serial.println(inputState);
-
+    // Serial.println(newState);
     _lastDebounceTime = millis();
-    _currentInputState = inputState;
     _isChanged = true;
     _previousState = _currentState;
-
-    switch (_currentInputState)
-    {
-      case 1:
-        _currentState = STATE_POWER_UP;
-        break;
-      case 2:
-        _currentState = STATE_RED_CYCLOTRON;
-        break;
-      case 3:
-        _currentState = STATE_GREEN_CYCLOTRON;
-        break;
-      case 4:
-        _currentState = STATE_BLUE_CYCLOTRON;
-        break;
-      case 5:
-        _currentState = STATE_ORANGE_CYCLOTRON;
-        break;
-      case 6:
-        _currentState = STATE_AUTOMATIC_VENTING;
-        break;
-      case 7:
-        _currentState = STATE_CHANGE_CYCLOTRON_COLOR;
-        break;
-      case 8:
-        _currentState = STATE_IDLE;
-        break;
-      case 9:
-        _currentState = STATE_VENT_STROBE;
-        break;
-      case 10:
-        _currentState = STATE_TEST_MODE;
-        break;
-      case 11:
-        _currentState = STATE_VENTING_ACTION;
-        break;
-      case 12:
-        _currentState = STATE_FIRE_MOVIE;
-        break;
-      case 13:
-        _currentState = STATE_FIRE_TVG;
-        break;
-      case 14:
-        _currentState = STATE_POWER_DOWN;
-        break;
-      case 15:
-        _currentState = STATE_STANDALONE;
-        break;
-      case 0:
-      default:
-        _currentState = STATE_OFF;
-        break;
-    }
+    _currentState = newState;
   }
 }
 
