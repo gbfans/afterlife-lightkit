@@ -20,6 +20,14 @@
                     "green": 0,
                     "blue": 0
                 }
+            },
+            "nfilter": {
+                "speed": 500,
+                "color": {
+                    "red": 255,
+                    "green": 255,
+                    "blue": 255
+                }
             }
         },
         "classic": {

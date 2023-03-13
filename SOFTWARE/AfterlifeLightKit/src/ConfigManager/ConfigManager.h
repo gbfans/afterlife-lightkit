@@ -5,7 +5,7 @@
 #define ConfigManager_h
 
 #include <ArduinoJson.h>   // https://github.com/bblanchon/ArduinoJson
-#include "Settings.h"
+#include "../../Settings.h"
 
 class ConfigManager  {
     public:

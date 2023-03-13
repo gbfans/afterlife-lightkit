@@ -33,6 +33,7 @@ class GBFansControl {
       void init();
       void update();
       bool changed();
+      unsigned long duration();
       bool isMode(CONTROL_MODES mode);
       bool isState(CONTROL_STATES state);
       bool wasState(CONTROL_STATES state);
@@ -46,6 +47,8 @@ class GBFansControl {
       bool _isChanged = false;
       int _controllerMode;
       unsigned long _lastDebounceTime = 0;
+      int _lastInputFrame = 0;
+      int _inputFramesReceived = 0;
 };
 
 #endif

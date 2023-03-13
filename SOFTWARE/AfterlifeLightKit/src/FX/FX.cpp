@@ -9,12 +9,30 @@ void FX::init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction
     _stripLength = stripLength;
     _ledColor = ledColor;
     _direction = direction;
-    _speed = speed;
-    _brightness = 50; //temp value
+    _speed = _originalSpeed = speed;
+    _brightness = _originalBrightness = 50; //temp value
 
     // Start at default speed
     _speedRamp.go(_speed);
     _brightnessRamp.go(_brightness);
+}
+
+void FX::stop()
+{
+    // Switch all lights off
+    setEffect(OFF);
+
+    // Update immediately
+    update(true);
+}
+
+void FX::allOn()
+{
+    // Switch all lights on
+    setEffect(ALL_ON);
+
+    // Update immediately
+    update(true);
 }
 
 void FX::setEffect(LIGHT_EFFECTS effect)
@@ -24,11 +42,21 @@ void FX::setEffect(LIGHT_EFFECTS effect)
 
 void FX::changeSpeed(unsigned char newSpeed, int delay, ramp_mode rampMode)
 {
+    if (newSpeed == _speed)
+    {
+        return;
+    }
+
+    _speed = newSpeed;
     _speedRamp.go(newSpeed, delay, rampMode, ONCEFORWARD);
 }
 
 void FX::changeBrightness(unsigned char newBrightness, int delay, ramp_mode rampMode)
 {
+    if (newBrightness == _brightness) {
+        return;
+    }
+
     _brightnessRamp.go(newBrightness, delay, rampMode, ONCEFORWARD);
 }
 
@@ -37,9 +65,16 @@ int FX::updateBrightness()
       return _brightnessRamp.update();
 }
 
-bool FX::update()
+void FX::reset()
 {
-    if (!_checkTimer()) {
+    // Instantly reset speed/brightness back to original values
+    changeSpeed(_originalSpeed, 0, NONE);
+    changeBrightness(_originalBrightness, 0, NONE);
+}
+
+bool FX::update(bool force)
+{
+    if (!_checkTimer() && !force) {
         return false;
     }
 
@@ -51,6 +86,12 @@ bool FX::update()
 
     switch (_effect)
     {
+        case OFF:
+            _clear();
+            break;
+        case ALL_ON:
+            _allOn();
+            break;
         case CYCLING:
             _cycling();
             break;
@@ -69,6 +110,15 @@ bool FX::update()
         case ALTERNATE:
             _alternate();
             break;
+        case BLINKING:
+            _blinking();
+            break;
+        case FADEIN:
+            _fadeIn();
+            break;
+        case FADEOUT:
+            _fadeOut();
+            break;
         default:
             Serial.print("Unknown: ");
             Serial.println(_effect);
@@ -76,6 +126,28 @@ bool FX::update()
     }
 
     return true;
+}
+
+void FX::_clear()
+{
+    for (uint16_t i = 0; i < _stripLength; i++)
+    {
+        /**
+         * Set all LEDS to black.
+         */
+        _pixels[i] = CRGB::Black;
+    }
+}
+
+void FX::_allOn()
+{
+    for (uint16_t i = 0; i < _stripLength; i++)
+    {
+        /**
+         * Set all LEDS to on.
+         */
+        _pixels[i] = _ledColor;
+    }
 }
 
 void FX::_spinning()
@@ -119,29 +191,25 @@ void FX::_cycling()
 
 void FX::_rainbow()
 {
-
       uint8 hue = round(( (float) _currentPixel / (float) (_stripLength-1)) * 255.0);
       for (uint16_t i = 0; i < _stripLength; i++) {
         _pixels[i].setHue(hue); 
       }
 
     _currentPixel = _getNextPixel();
-  
 }
 
 void FX::_rainbowScroll()
 {
-
     uint8 hue = round(( (float) _currentPixel / (float) (_stripLength-1)) * 255.0);
     fill_rainbow( _pixels, _stripLength, hue, 255/_stripLength );
     _currentPixel = _getNextPixel();
-  
 }
 
 void FX::_cylon()
 {
     uint8 hue = round((float) _currentPixel / (float) (_stripLength-1));
-    _fadeall();
+    _fadeOut();
     _pixels[_currentPixel].setHue(hue);
     _currentPixel = _getNextPixel();
 
@@ -165,14 +233,38 @@ void FX::_alternate()
     _currentPixel = _getNextPixel();
 }
 
-/*
- * Test function. Supposed to fade out LEDs slowly.
+/**
+ * Set all LEDS on/off
  */
-void FX::_fadeall()
+void FX::_blinking()
+{
+
+    // Lazy way to alternative on/off states for all LEDS
+    _currentPixel = (_currentPixel == 1) ? 0 : 1;
+}
+
+/**
+ * LED starts at top and drops down to the bottom, gradually filling the strand.
+ * (similar to Tetris)
+ */
+void FX::_tetris()
+{
+    // To be implemented
+}
+
+void FX::_fadeIn()
+{
+    // To be implemented
+}
+
+/*
+ * Test function. Supposed to fade out all LEDs slowly.
+ */
+void FX::_fadeOut()
 {
     for(int i = 0; i < _stripLength; i++)
     {
-      _pixels[i].nscale8(225);
+      _pixels[i].nscale8(250);
     }
 }
 

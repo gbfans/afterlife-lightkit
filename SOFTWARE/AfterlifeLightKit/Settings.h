@@ -3,19 +3,17 @@
 
 #include <Ramp.h>
 
-// Which pins the Powercell & Cyclotron are connected to
+// Which pins the Powercell, Cyclotron, and N-Filter lights are connected to
 #define POWERCELL_PIN 0
 #define CYCLOTRON_PIN 5
+#define NFILTER_PIN 4
 
 // How many LEDS in each?
 #define POWERCELL_LENGTH 15
-#define CYCLOTRON_LENGTH 60
+#define CYCLOTRON_LENGTH 40
+#define NFILTER_LENGTH 16
 
 //Define the default Hardware pins
-#define ENABLE_BTN_PIN  13  //Enable lights (ACTIVE HIGH)
-#define FIRE_BTN_PIN    16  //Trigger firing (ACTIVE LOW)
-#define VENT_BTN_PIN    12  //Trigger venting (ACTIVE LOW
-#define CHANGE_BTN_PIN  14  //Change between video game modes (ACTIVE LOW)
 #define SHIFT_PIN       15  //Enable logic shifter (ACTIVE HIGH)
 
 enum DIRECTIONS {
@@ -44,12 +42,17 @@ enum PACKSTATES
 };
 
 enum LIGHT_EFFECTS {
+    OFF,
+    ALL_ON,
     CYCLING,
     SPINNING,
     RAINBOW,
     RAINBOW_SCROLL,
     CYLON,
-    ALTERNATE
+    ALTERNATE,
+    BLINKING,
+    FADEIN,
+    FADEOUT,
 };
 
 struct RGBColor {
@@ -72,10 +75,18 @@ struct CyclotronSettings
     RGBColor color;
 };
 
+struct NfilterSettings
+{
+    DIRECTIONS direction;
+    int speed;
+    RGBColor color;
+};
+
 struct Settings
 {
     PowercellSettings powercell;
     CyclotronSettings cyclotron;
+    NfilterSettings nfilter;
 };
 
 struct Configuration

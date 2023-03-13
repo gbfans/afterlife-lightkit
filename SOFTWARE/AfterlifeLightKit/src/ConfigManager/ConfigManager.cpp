@@ -50,12 +50,13 @@ void ConfigManager::init()
      */
     //_configuration.classicSettings.powercellSpeed = doc["modes"]["classic"]["powercell"]["speed"] | 1000;
 
-
+    // Power Cell
     _configuration.afterlifeSettings.powercell.speed = doc["modes"]["afterlife"]["powercell"]["speed"] | 50;
     _configuration.afterlifeSettings.powercell.color.red = doc["modes"]["afterlife"]["powercell"]["color"]["red"];
     _configuration.afterlifeSettings.powercell.color.green = doc["modes"]["afterlife"]["powercell"]["color"]["green"];
     _configuration.afterlifeSettings.powercell.color.blue = doc["modes"]["afterlife"]["powercell"]["color"]["blue"];
 
+    // Cyclotron
     _configuration.afterlifeSettings.cyclotron.speed = doc["modes"]["afterlife"]["cyclotron"]["speed"] | 5;
     DIRECTIONS cyclotronDirection = LIGHTS_FORWARD;
     if (doc["modes"]["afterlife"]["cyclotron"]["direction"] == "reverse") {
@@ -66,6 +67,12 @@ void ConfigManager::init()
     _configuration.afterlifeSettings.cyclotron.color.red = doc["modes"]["afterlife"]["cyclotron"]["color"]["red"];
     _configuration.afterlifeSettings.cyclotron.color.green = doc["modes"]["afterlife"]["cyclotron"]["color"]["green"];
     _configuration.afterlifeSettings.cyclotron.color.blue = doc["modes"]["afterlife"]["cyclotron"]["color"]["blue"];
+
+    // N-Filter
+    _configuration.afterlifeSettings.nfilter.speed = doc["modes"]["afterlife"]["nfilter"]["speed"] | 500;
+    _configuration.afterlifeSettings.nfilter.color.red = doc["modes"]["afterlife"]["nfilter"]["color"]["red"];
+    _configuration.afterlifeSettings.nfilter.color.green = doc["modes"]["afterlife"]["nfilter"]["color"]["green"];
+    _configuration.afterlifeSettings.nfilter.color.blue = doc["modes"]["afterlife"]["nfilter"]["color"]["blue"];
 
     // Demo: Save back?
     // EEPROM.begin(4098);

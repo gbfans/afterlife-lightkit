@@ -1,5 +1,5 @@
 #include <Ramp.h>
-#include "Settings.h"
+#include "../../Settings.h"
 #define FASTLED_INTERNAL // remove annoying pragma messages
 #include "FastLED.h"
 
@@ -18,26 +18,32 @@ class FX {
         void changeBrightness(unsigned char newSpeed, int delay, ramp_mode rampMode);
         int updateBrightness();
         // Call every 1ms to get the next pixel data
-        bool update();
+        bool update(bool force = false);
         // Start the effect
         void start();
-        // Stop the effect (instantly)
+        // Stop the effect (instantly switch off all LEDs)
         void stop();
+        // Force all LEDS on
+        void allOn();
         // Reset the effect states back to the original
         void reset();
     private:
+        void _clear();
+        void _allOn();
         void _cycling();
         void _spinning();
         void _rainbow();
         void _rainbowScroll();
         void _cylon();
         void _alternate();
-        void _fadeall();
+        void _fadeIn();
+        void _fadeOut();
+        void _blinking();
+        void _tetris();
         // void _ascend();
         // void _descend();
         // void _ascendDescend();
-        // void _fadeIn();
-        // void _fadeOut();
+
 
         int _getNextPixel();
         bool _checkTimer();
@@ -46,7 +52,9 @@ class FX {
         int _stripLength;
         int _currentPixel = 0;
         int _speed;
+        int _originalSpeed;
         int _brightness;
+        int _originalBrightness;
         unsigned long _previousMillis = 0;
         LIGHT_EFFECTS _effect;
         DIRECTIONS _direction;
