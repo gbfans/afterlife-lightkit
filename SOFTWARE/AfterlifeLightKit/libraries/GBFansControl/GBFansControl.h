@@ -28,11 +28,14 @@ enum CONTROL_STATES {
   STATE_NONE, // 16: None (ie State has not yet been read)
 };
 
-class Control {
+class GBFansControl {
     public:
       void init();
       void update();
       bool changed();
+      bool isMode(CONTROL_MODES mode);
+      bool isState(CONTROL_STATES state);
+      bool wasState(CONTROL_STATES state);
       CONTROL_MODES getMode();
       CONTROL_STATES getCurrentState();
       CONTROL_STATES getPreviousState();

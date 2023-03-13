@@ -1,9 +1,9 @@
-#include "Control.h"
+#include "GBFansControl.h"
 
 //Enable logic shifter (D8/GPIO15, ACTIVE HIGH)
 #define SHIFT_PIN 15
 
-Control controls;
+GBFansControl controls;
 
 void setup() {
   // put your setup code here, to run once:
