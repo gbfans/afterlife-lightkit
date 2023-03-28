@@ -17,10 +17,6 @@ class Lights {
         void setMode(MODES mode); // Both Powercell/Cyclotron are in same mode
         void update(bool force = false);
         void setState(PACKSTATES state);
-
-        // TODO: Remove this test method
-        void testChangeCyclotronSpeed(unsigned char newSpeed, int delay);
-        void testChangeCyclotronBrightness(unsigned char newSpeed, int delay);
     private:
         // Private Properties
         bool _isDirty = false;

@@ -30,18 +30,27 @@ void setup()
 void loop()
 {
     controls.update();
-    lights.update();
 
+    /**
+     * NOTE: It is safe to keep setting the State over again here
+     * as setState includes a check to prevent changing to the same State
+     */
     if (controls.isState(STATE_OFF))
     {
         // Powered off
-        Serial.println("Off");
+        //Serial.println("Off");
         lights.setState(INACTIVE);
+    }
+    else if (controls.isState(STATE_POWER_UP))
+    {
+        // Starting up
+        //Serial.println("Startup");
+        lights.setState(START);
     }
     else if (controls.isState(STATE_IDLE))
     {
         // Idling
-        Serial.println("Idle");
+        //Serial.println("Idle");
         lights.setState(IDLE);
     }
     else if (controls.isState(STATE_FIRE_MOVIE))
@@ -50,18 +59,21 @@ void loop()
         if (controls.duration() > 5000)
         {
             // We have been firing for > 5 seconds
-            Serial.println("Overheating");
+            //Serial.println("Overheating");
             lights.setState(OVERHEATING);
         }
         else
         {
-            Serial.println("Firing");
+            //Serial.println("Firing");
             lights.setState(FIRING);
         }
     }
     else if (controls.isState(STATE_POWER_DOWN))
     {
-        Serial.println("Powering Down");
+        //Serial.println("Powering Down");
         lights.setState(SHUTDOWN);
     }
+
+    // We should always update Lights AFTER the State has been set
+    lights.update();
 }

@@ -11,19 +11,22 @@ class FX {
         // Some kind of initialize
         void init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction, int speed);
         // Set which effect to do
-        void setEffect(LIGHT_EFFECTS effect);
-        // Change the speed of the animation
-        void changeSpeed(unsigned char newSpeed, int delay, ramp_mode rampMode);
-        // Call every 1ms to get the next pixel data
-        void changeBrightness(unsigned char newSpeed, int delay, ramp_mode rampMode);
+        void setEffect(LIGHT_EFFECTS effect, bool reset = false);
+        // Set the direction (which will also reset the current pixel)
+        void setReverse(bool isReverse = true);
+        // Set the Speed (instantly) of the animation
+        void changeSpeed(int newSpeed);
+        // Gradually change the speed of the animation
+        void changeSpeed(int newSpeed, int delay, ramp_mode rampMode);
+        // Set the brightness (instantly) of the animation
+        void changeBrightness(int newBrightness);
+        // Get the current Brightness (used by FastLED directly)
         int updateBrightness();
         // Call every 1ms to get the next pixel data
         bool update(bool force = false);
-        // Start the effect
-        void start();
         // Stop the effect (instantly switch off all LEDs)
         void stop();
-        // Force all LEDS on
+        // Force all LEDs on
         void allOn();
         // Reset the effect states back to the original
         void reset();
@@ -36,17 +39,24 @@ class FX {
         void _rainbowScroll();
         void _cylon();
         void _alternate();
-        void _fadeIn();
-        void _fadeOut();
         void _blinking();
         void _tetris();
+        void _descend();
         // void _ascend();
-        // void _descend();
         // void _ascendDescend();
 
 
+        // Get the next Pixel in the sequence
         int _getNextPixel();
+        // Get the last Pixel (typically the last in the strip)
+        int _getLastPixel();
+        // Get the first Pixel (typically the first in the strip)
+        int _getFirstPixel();
+        // Check whether the timer has elapsed
         bool _checkTimer();
+
+        // Return the current LED Colour with brightness applied
+        CRGB _getLedColor();
 
         CRGB *_pixels;
         int _stripLength;
@@ -59,8 +69,15 @@ class FX {
         LIGHT_EFFECTS _effect;
         DIRECTIONS _direction;
         CRGB _ledColor;
-        ramp _speedRamp;
-        ramp _brightnessRamp;
+        rampInt _speedRamp;
+
+        /**
+         * Animation-specific variables
+         */
+         // Used for the TETRIS animation to track how many LEDs are filled
+         int _tetrisProgress = 0;
+         // Used for the DESCEND animation to keep track of how many loops have occurred
+         int _descendLoopCount = 0;
 };
 
 #endif

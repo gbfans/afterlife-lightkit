@@ -3,7 +3,6 @@
 #include "../FX/FX.h"
 
 #define FASTLED_ESP8266_RAW_PIN_ORDER
-
 #define FASTLED_INTERNAL // remove annoying pragma messages
 
 #include "FastLED.h"
@@ -133,40 +132,40 @@ void Lights::setState(PACKSTATES state)
      *            All of these are configurable by the user.
      */
 
-    Serial.print("Lights State changed to: ");
+    //Serial.print("Lights State changed to: ");
     switch (_currentState)
     {
         case INACTIVE:
             _inactive();
-            Serial.println("inactive");
+            //Serial.println("inactive");
             break;
         case START:
             _startup();
-            Serial.println("start");
+            //Serial.println("start");
             break;
         case IDLE:
             _idle();
-            Serial.println("idle");
+            //Serial.println("idle");
             break;
         case FIRING:
             _firing();
-            Serial.println("firing");
+            //Serial.println("firing");
             break;
         case OVERHEATING:
             _overheating();
-            Serial.println("overheating");
+            //Serial.println("overheating");
             break;
         case VENTING:
             _venting();
-            Serial.println("venting");
+            //Serial.println("venting");
             break;
         case SHUTDOWN:
             _shutdown();
-            Serial.println("shutdown");
+            //Serial.println("shutdown");
             break;
         case PARTY:
             _party();
-            Serial.println("party");
+            //Serial.println("party");
             break;
     }
 }
@@ -181,23 +180,36 @@ void Lights::_inactive()
 
 void Lights::_startup()
 {
-    // Switch off all lights
+    // Switch off all lights (they should be off already during startup)
     _cyclotronFX.stop();
     _powercellFX.stop();
     _nfilterFX.stop();
 
-    // Ramp up Cyclotron
+    _cyclotronFX.changeBrightness(255);
 
-    _powercellFX.setEffect()
+    _cyclotronFX.setEffect(CYCLING, true);
+    // Ramp up to full idle speed over 3 seconds
+    _cyclotronFX.changeSpeed(100); // Start slow
+    _cyclotronFX.changeSpeed(10, 3000, QUADRATIC_INOUT);
+
+    // Special PowerCell Startup animation
+    _powercellFX.setReverse();
+    _powercellFX.changeSpeed(25);
+    _powercellFX.changeSpeed(5, 3000, QUADRATIC_INOUT);
+    _powercellFX.setEffect(TETRIS, true);
 }
 
 void Lights::_idle()
 {
+    // NOTE: We should already be at this speed after Startup, but subsequent effect changes (firing etc) will return
+    // here, so this ensures a gradual ramp up/down from our previous speed.
     _cyclotronFX.setEffect(CYCLING);
-    _cyclotronFX.reset();
+    _cyclotronFX.changeSpeed(10, 1000, QUADRATIC_INOUT);
 
-    _powercellFX.setEffect(SPINNING);
-    _powercellFX.reset();
+    // Set to SPINNING for standard mode
+    // Set to CYCLING for that one Afterlife scene where Ray was knocked over and the PowerCell was misconfigured
+    _powercellFX.setEffect(SPINNING, true);
+    _powercellFX.changeSpeed(50);
 
     _nfilterFX.stop();
     _nfilterFX.reset();
@@ -205,19 +217,15 @@ void Lights::_idle()
 
 void Lights::_shutdown()
 {
-    // Set PowerCell/Cyclotron to all-on
-    _cyclotronFX.allOn();
-    _cyclotronFX.update(true);
+    // Afterlife: Slow down the Cyclotron over 3 seconds
+    _cyclotronFX.setEffect(CYCLING); // in case we were non-idle at Shutdown
+    _cyclotronFX.changeSpeed(100, 3000, LINEAR);
+
+    // Fade out PowerCell over 2-3 seconds
     _powercellFX.allOn();
-    _powercellFX.update(true);
-    // Write immediately
-
-    // Fade out PowerCell/Cyclotron over 2-3 seconds
-    _cyclotronFX.setEffect(FADEOUT);
-    _powercellFX.setEffect(FADEOUT);
-
-    _powercellFX.changeSpeed(5, 1500, QUADRATIC_INOUT);
-    _cyclotronFX.changeSpeed(5, 3000, QUADRATIC_INOUT);
+    _powercellFX.setEffect(DESCEND, true);
+    _powercellFX.changeSpeed(25, 3000, LINEAR);
+    _powercellFX.setReverse();
 
     // Switch off NFilter (if on)
     _nfilterFX.stop();
@@ -239,38 +247,27 @@ void Lights::_firing()
 void Lights::_overheating()
 {
     // Blink Cyclotron
-    _cyclotronFX.setEffect(BLINKING);
-    _cyclotronFX.changeSpeed(500, 0, NONE);
+    _cyclotronFX.stop();
+    _cyclotronFX.setEffect(BLINKING); // temporary, probably only to be used in Classic mode, do we have an Afterlife overheat?
+    _cyclotronFX.changeSpeed(500);
 
     // Make Power Cell alternate
+    _powercellFX.stop();
     _powercellFX.setEffect(ALTERNATE);
-    _powercellFX.changeSpeed(100, 0, NONE);
+    _powercellFX.changeSpeed(200);
 
-    // Blink the N-Filter
-    _nfilterFX.setEffect(BLINKING);
+    // Illuminate the N-Filter
+    _nfilterFX.setEffect(ALL_ON);
 }
 
 void Lights::_venting()
 {
     // To be implemented
+
+    _nfilterFX.setEffect(ALL_ON);
 }
 
 void Lights::_party()
 {
     // To be implemented
-}
-
-/**
- * TODO: Remove this as setState and setMode will handle changing
- *       these values based on Configuration.
- * This demo function changes the speed of the Cyclotron.
- */
-void Lights::testChangeCyclotronSpeed(unsigned char newSpeed, int delay)
-{
-    _cyclotronFX.changeSpeed(newSpeed, delay, QUADRATIC_INOUT);
-}
-
-void Lights::testChangeCyclotronBrightness(unsigned char newBrightness, int delay)
-{
-    _cyclotronFX.changeBrightness(newBrightness, delay, CUBIC_OUT);
 }

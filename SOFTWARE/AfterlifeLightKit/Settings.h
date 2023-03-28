@@ -49,10 +49,10 @@ enum LIGHT_EFFECTS {
     RAINBOW,
     RAINBOW_SCROLL,
     CYLON,
+    TETRIS,
+    DESCEND,
     ALTERNATE,
     BLINKING,
-    FADEIN,
-    FADEOUT,
 };
 
 struct RGBColor {
