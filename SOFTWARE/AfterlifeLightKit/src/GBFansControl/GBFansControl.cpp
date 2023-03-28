@@ -64,8 +64,9 @@ void GBFansControl::init()
 void GBFansControl::update()
 {
     _isChanged = false;
+    _currentMillis = millis();
 
-    if ((millis() - _lastDebounceTime) <= INPUT_DEBOUNCE_DELAY && _currentState != STATE_NONE)
+    if ((_currentMillis - _lastDebounceTime) <= INPUT_DEBOUNCE_DELAY && _currentState != STATE_NONE)
     {
         /**
          * Debounce interval has not been met, or we have never read the inputs (eg on first boot)
@@ -178,7 +179,7 @@ void GBFansControl::update()
 //         Serial.print(_currentState);
 //         Serial.print(", New: ");
 //         Serial.println(newState);
-        _lastDebounceTime = millis();
+        _lastDebounceTime = _currentMillis;
         _isChanged = true;
         _previousState = _currentState;
         _currentState = newState;
@@ -225,5 +226,5 @@ bool GBFansControl::changed()
  */
 unsigned long GBFansControl::duration()
 {
-    return (unsigned long)(millis() - _lastDebounceTime);
+    return (unsigned long)(_currentMillis - _lastDebounceTime);
 }

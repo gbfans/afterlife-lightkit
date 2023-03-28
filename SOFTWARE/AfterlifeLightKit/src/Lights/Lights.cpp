@@ -247,9 +247,7 @@ void Lights::_firing()
 void Lights::_overheating()
 {
     // Blink Cyclotron
-    _cyclotronFX.stop();
-    _cyclotronFX.setEffect(BLINKING); // temporary, probably only to be used in Classic mode, do we have an Afterlife overheat?
-    _cyclotronFX.changeSpeed(500);
+    _cyclotronFX.changeSpeed(1, 3000, QUADRATIC_INOUT);
 
     // Make Power Cell alternate
     _powercellFX.stop();

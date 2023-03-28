@@ -47,6 +47,7 @@ class GBFansControl {
       bool _isChanged = false;
       int _controllerMode;
       unsigned long _lastDebounceTime = 0;
+      unsigned long _currentMillis = 0;
       int _lastInputFrame = 0;
       int _inputFramesReceived = 0;
 };
