@@ -30,6 +30,8 @@ jobs:
 
             - name: Run PlatformIO
               run: pio ci --project-conf=platformio.ini .
+            - name: List files
+              run: pwd && ls
             - uses: actions/upload-artifact@v3
               with:
                   name: firmware-${{ matrix.environment }}
