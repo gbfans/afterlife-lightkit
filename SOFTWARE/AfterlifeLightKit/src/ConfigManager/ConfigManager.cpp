@@ -1,8 +1,3 @@
-#include <FS.h>
-#include <LittleFS.h>
-#include <EEPROM.h>
-#include <ArduinoJson.h> // https://github.com/bblanchon/ArduinoJson
-
 #include "ConfigManager.h"
 
 void ConfigManager::init()

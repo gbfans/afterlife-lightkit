@@ -35,6 +35,11 @@ const int INPUT_DEBOUNCE_DELAY = 50;
  */
 const int INPUT_MIN_REQUIRED_FRAMES = 50;
 
+GBFansControl::GBFansControl()
+{
+    // Do nothing
+}
+
 void GBFansControl::init()
 {
     /**

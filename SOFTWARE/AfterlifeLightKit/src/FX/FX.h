@@ -1,6 +1,6 @@
 #include <Ramp.h>
-#include "../../Settings.h"
-#define FASTLED_INTERNAL // remove annoying pragma messages
+#include "../Settings.h"
+#define FASTLED_INTERNAL //remove annoying pragma messages
 #include "FastLED.h"
 
 #ifndef FX_h
@@ -78,6 +78,8 @@ class FX {
          int _tetrisProgress = 0;
          // Used for the DESCEND animation to keep track of how many loops have occurred
          int _descendLoopCount = 0;
+         // Used for the ALTERNATE animation
+         int _alternateState = 0;
 };
 
 #endif

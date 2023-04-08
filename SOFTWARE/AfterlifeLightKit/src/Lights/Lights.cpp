@@ -1,11 +1,4 @@
 #include "Lights.h"
-#include "../ConfigManager/ConfigManager.h"
-#include "../FX/FX.h"
-
-#define FASTLED_ESP8266_RAW_PIN_ORDER
-#define FASTLED_INTERNAL // remove annoying pragma messages
-
-#include "FastLED.h"
 
 template<uint8_t DATA_PIN, EOrder GRB_ORDER = GRB, int WAIT_TIME = 5>
 class WS2812Controller800Khz_noflicker : public ClocklessController<DATA_PIN, C_NS(250), C_NS(625), C_NS(
@@ -23,9 +16,9 @@ Lights::Lights()
     // Do nothing
 }
 
-void Lights::init(ConfigManager configManager)
+void Lights::init()
 {
-    _configManager = configManager;
+    _configManager.init();
 
     _configuration = _configManager.getConfiguration();
     _settings = _configManager.getModeSettings(_configuration.defaultMode);
@@ -193,10 +186,10 @@ void Lights::_startup()
     _cyclotronFX.changeSpeed(10, 3000, QUADRATIC_INOUT);
 
     // Special PowerCell Startup animation
-    _powercellFX.setReverse();
     _powercellFX.changeSpeed(25);
     _powercellFX.changeSpeed(5, 3000, QUADRATIC_INOUT);
     _powercellFX.setEffect(TETRIS, true);
+    _powercellFX.setReverse();
 }
 
 void Lights::_idle()
@@ -223,8 +216,8 @@ void Lights::_shutdown()
 
     // Fade out PowerCell over 2-3 seconds
     _powercellFX.allOn();
+    _powercellFX.changeSpeed(round(2000/POWERCELL_LENGTH));
     _powercellFX.setEffect(DESCEND, true);
-    _powercellFX.changeSpeed(25, 3000, LINEAR);
     _powercellFX.setReverse();
 
     // Switch off NFilter (if on)
@@ -246,16 +239,15 @@ void Lights::_firing()
 
 void Lights::_overheating()
 {
-    // Blink Cyclotron
-    _cyclotronFX.changeSpeed(1, 3000, QUADRATIC_INOUT);
-
     // Make Power Cell alternate
-    _powercellFX.stop();
-    _powercellFX.setEffect(ALTERNATE);
+    _powercellFX.setEffect(ALTERNATE, true);
     _powercellFX.changeSpeed(200);
 
+    // Faster Cyclotron
+    _cyclotronFX.changeSpeed(2, 3000, QUADRATIC_INOUT);
+
     // Illuminate the N-Filter
-    _nfilterFX.setEffect(ALL_ON);
+    //_nfilterFX.setEffect(ALL_ON);
 }
 
 void Lights::_venting()

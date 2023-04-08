@@ -1,8 +1,11 @@
-#include "src/ConfigManager/ConfigManager.h"
-#include "src/Lights/Lights.h"
-#include "src/GBFansControl/GBFansControl.h"
+#include <Arduino.h>
 
-ConfigManager config;
+#include <WiFiManager.h> // https://github.com/tzapu/WiFiManager
+WiFiManager wm;
+
+#include "Lights/Lights.h"
+#include "GBFansControl/GBFansControl.h"
+#include "Settings.h"
 
 MODES mode;
 Lights lights;
@@ -10,7 +13,8 @@ GBFansControl controls;
 
 void setup()
 {
-    //Serial.begin(115200);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, LOW);
 
     /**
      * Output Configuration
@@ -20,11 +24,13 @@ void setup()
 
     controls.init();
 
-    config.init();
-    lights.init(config);
+    lights.init();
 
     // Off by default
     lights.setState(INACTIVE);
+    lights.update(true);
+
+    Serial.begin(115200);
 }
 
 void loop()

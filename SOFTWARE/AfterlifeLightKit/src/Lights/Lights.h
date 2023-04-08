@@ -1,4 +1,10 @@
-#define FASTLED_INTERNAL //remove annoying pragma messages
+// Hopefully prevent jitter as per https://github.com/jasoncoon/esp8266-fastled-webserver/issues/85#issuecomment-618656354
+#define FASTLED_ALLOW_INTERRUPTS 0
+
+//remove annoying pragma messages
+#define FASTLED_INTERNAL
+#define FASTLED_ESP8266_RAW_PIN_ORDER
+
 #include "FastLED.h"
 
 #include "../ConfigManager/ConfigManager.h"
@@ -13,7 +19,7 @@ class Lights {
         Lights();
 
         // Public Methods
-        void init(ConfigManager configManager);
+        void init();
         void setMode(MODES mode); // Both Powercell/Cyclotron are in same mode
         void update(bool force = false);
         void setState(PACKSTATES state);

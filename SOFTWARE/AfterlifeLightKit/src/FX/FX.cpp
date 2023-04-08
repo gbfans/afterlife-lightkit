@@ -1,8 +1,5 @@
 #include "FX.h"
 
-#define FASTLED_INTERNAL //remove annoying pragma messages
-#include "FastLED.h"
-
 void FX::init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction, int speed)
 {
     _pixels = pixels;
@@ -44,6 +41,7 @@ void FX::setEffect(LIGHT_EFFECTS effect, bool reset)
         _currentPixel = _getFirstPixel();
         _tetrisProgress = 0;
         _descendLoopCount = 0;
+        _alternateState = 0;
     }
 
     _effect = effect;
@@ -268,9 +266,9 @@ void FX::_cylon()
 void FX::_alternate()
 {
     for (uint16_t i = 0; i < _stripLength; i++) {
-        _pixels[i] = (_currentPixel%2 == i%2) ? _getLedColor() : CRGB::Black;
+        _pixels[i] = (_alternateState%2 == i%2) ? _getLedColor() : CRGB::Black;
     }
-    _currentPixel = _getNextPixel();
+    _alternateState = !_alternateState;
 }
 
 /**
@@ -301,7 +299,7 @@ void FX::_tetris()
     for (uint16_t i = 0; i < _stripLength; i++)
     {
         // If LED is below the current progress, OR is the current pixel, we light it up
-        _pixels[i] = (i <= _tetrisProgress || i == _currentPixel) ? _getLedColor() : CRGB::Black;
+        _pixels[i] = (i < _tetrisProgress || i == _currentPixel) ? _getLedColor() : CRGB::Black;
     }
 
     if (_currentPixel == _tetrisProgress) {
@@ -383,7 +381,7 @@ int FX::_getLastPixel()
 bool FX::_checkTimer()
 {
     unsigned long currentMillis = millis();
-    if (currentMillis - _previousMillis >= _speed)
+    if (currentMillis - _previousMillis >= (unsigned long)_speed)
     {
         _previousMillis = currentMillis;
         return true;
