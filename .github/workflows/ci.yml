@@ -34,4 +34,4 @@ jobs:
               with:
                   name: firmware-${{ matrix.environment }}
                   path: |
-                      .pio/build/d1_mini/firmware.bin
+                      ./SOFTWARE/AfterlifeLightKit/.pio/build/d1_mini/firmware.bin
