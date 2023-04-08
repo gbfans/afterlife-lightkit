@@ -1,8 +1,3 @@
-#include <FS.h>
-#include <LittleFS.h>
-#include <EEPROM.h>
-#include <ArduinoJson.h> // https://github.com/bblanchon/ArduinoJson
-
 #include "ConfigManager.h"
 
 void ConfigManager::init()
@@ -39,7 +34,7 @@ void ConfigManager::init()
     }
 
     configFile.close();
-    
+
     /**
      * Output JSON Configuration as read for debugging.
      */
@@ -48,22 +43,17 @@ void ConfigManager::init()
     /**
      * TODO: How do we abstract this out?
      */
-    _hardwareConfiguration.Powercell.length = doc["hardware"]["powercell"]["length"] | 15;
-    _hardwareConfiguration.Cyclotron.length = doc["hardware"]["cyclotron"]["length"] | 60;
-
     //_configuration.classicSettings.powercellSpeed = doc["modes"]["classic"]["powercell"]["speed"] | 1000;
-    _configuration.afterlifeSettings.powercell.speed = doc["modes"]["afterlife"]["powercell"]["brightness"] | 255;
-    _configuration.afterlifeSettings.powercell.speed = doc["modes"]["afterlife"]["cyclotron"]["brightness"] | 255;
-    
 
-
+    // Power Cell
     _configuration.afterlifeSettings.powercell.speed = doc["modes"]["afterlife"]["powercell"]["speed"] | 50;
     _configuration.afterlifeSettings.powercell.color.red = doc["modes"]["afterlife"]["powercell"]["color"]["red"];
     _configuration.afterlifeSettings.powercell.color.green = doc["modes"]["afterlife"]["powercell"]["color"]["green"];
     _configuration.afterlifeSettings.powercell.color.blue = doc["modes"]["afterlife"]["powercell"]["color"]["blue"];
 
+    // Cyclotron
     _configuration.afterlifeSettings.cyclotron.speed = doc["modes"]["afterlife"]["cyclotron"]["speed"] | 5;
-    Directions cyclotronDirection = LIGHTS_FORWARD;
+    DIRECTIONS cyclotronDirection = LIGHTS_FORWARD;
     if (doc["modes"]["afterlife"]["cyclotron"]["direction"] == "reverse") {
         cyclotronDirection = LIGHTS_REVERSE;
     }
@@ -73,17 +63,18 @@ void ConfigManager::init()
     _configuration.afterlifeSettings.cyclotron.color.green = doc["modes"]["afterlife"]["cyclotron"]["color"]["green"];
     _configuration.afterlifeSettings.cyclotron.color.blue = doc["modes"]["afterlife"]["cyclotron"]["color"]["blue"];
 
+    // N-Filter
+    _configuration.afterlifeSettings.nfilter.speed = doc["modes"]["afterlife"]["nfilter"]["speed"] | 500;
+    _configuration.afterlifeSettings.nfilter.color.red = doc["modes"]["afterlife"]["nfilter"]["color"]["red"];
+    _configuration.afterlifeSettings.nfilter.color.green = doc["modes"]["afterlife"]["nfilter"]["color"]["green"];
+    _configuration.afterlifeSettings.nfilter.color.blue = doc["modes"]["afterlife"]["nfilter"]["color"]["blue"];
+
     // Demo: Save back?
     // EEPROM.begin(4098);
 
     // EepromStream eepromStream(0, 4098);
     // serializeJson(doc, eepromStream);
     // eepromStream.flush();
-}
-
-HardwareConfiguration ConfigManager::getHardwareConfiguration()
-{
-    return _hardwareConfiguration;
 }
 
 Configuration ConfigManager::getConfiguration()

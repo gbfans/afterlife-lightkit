@@ -30,9 +30,14 @@ enum CONTROL_STATES {
 
 class GBFansControl {
     public:
+      // Constructor
+      GBFansControl();
+
+      // Public Methods
       void init();
       void update();
       bool changed();
+      unsigned long duration();
       bool isMode(CONTROL_MODES mode);
       bool isState(CONTROL_STATES state);
       bool wasState(CONTROL_STATES state);
@@ -40,12 +45,14 @@ class GBFansControl {
       CONTROL_STATES getCurrentState();
       CONTROL_STATES getPreviousState();
     private:
-      CONTROL_MODES _mode;
-      CONTROL_STATES _currentState;
-      CONTROL_STATES _previousState;
+      CONTROL_MODES _mode = MODE_CONTROLLED;
+      CONTROL_STATES _currentState = STATE_OFF;
+      CONTROL_STATES _previousState = STATE_OFF;
       bool _isChanged = false;
-      int _controllerMode;
       unsigned long _lastDebounceTime = 0;
+      unsigned long _currentMillis = 0;
+      int _lastInputFrame = 0;
+      int _inputFramesReceived = 0;
 };
 
 #endif

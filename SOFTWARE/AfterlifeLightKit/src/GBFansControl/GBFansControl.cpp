@@ -20,7 +20,25 @@ const int INPUT_PINS[4] = {D5, D6, D0, D7};
 /**
  * How many milliseconds to debounce?
  */
-const int INPUT_DEBOUNCE_DELAY = 5;
+const int INPUT_DEBOUNCE_DELAY = 50;
+
+/**
+ * How many frames of the same signal should we require before we consider it 'real'?
+ * (Resolves potential data interference issues over loose wires)
+ *
+ * For example, we must receive 'Firing' 50 times in a row (approx 50 milliseconds)
+ * before we actually believe that we received that signal from the Sound Board.
+ * NOTE: This should be a lower number than the duration of a "quick" button press,
+ * such as firing a boson dart. A number too high would result in those button presses being
+ * ignored.
+ *
+ */
+const int INPUT_MIN_REQUIRED_FRAMES = 50;
+
+GBFansControl::GBFansControl()
+{
+    // Do nothing
+}
 
 void GBFansControl::init()
 {
@@ -51,8 +69,9 @@ void GBFansControl::init()
 void GBFansControl::update()
 {
     _isChanged = false;
+    _currentMillis = millis();
 
-    if ((millis() - _lastDebounceTime) <= INPUT_DEBOUNCE_DELAY && _currentState != STATE_NONE)
+    if ((_currentMillis - _lastDebounceTime) <= INPUT_DEBOUNCE_DELAY && _currentState != STATE_NONE)
     {
         /**
          * Debounce interval has not been met, or we have never read the inputs (eg on first boot)
@@ -76,6 +95,31 @@ void GBFansControl::update()
     if (digitalRead(INPUT_PINS[3]) == HIGH)
     {
         inputState += 8;
+    }
+
+    if (inputState == _lastInputFrame)
+    {
+        // This is the same input we received last time
+        if (_inputFramesReceived < INPUT_MIN_REQUIRED_FRAMES)
+        {
+            // We haven't met the required min frames yet
+            _inputFramesReceived++;
+            return;
+        }
+    }
+
+    if (inputState != _lastInputFrame)
+    {
+        // We received a new input signal from the Sound Board
+
+        // Reset frame count back to 1
+        _inputFramesReceived = 1;
+
+        // Set the Last Input received to check against next time
+        _lastInputFrame = inputState;
+
+        // Do not proceed further until this frame has been verified
+        return;
     }
 
     CONTROL_STATES newState;
@@ -136,11 +180,11 @@ void GBFansControl::update()
     if (newState != _currentState)
     {
         // Input has changed
-        // Serial.print("Changed! - Old: ");
-        // Serial.print(_currentState);
-        // Serial.print(", New: ");
-        // Serial.println(newState);
-        _lastDebounceTime = millis();
+//         Serial.print("Changed! - Old: ");
+//         Serial.print(_currentState);
+//         Serial.print(", New: ");
+//         Serial.println(newState);
+        _lastDebounceTime = _currentMillis;
         _isChanged = true;
         _previousState = _currentState;
         _currentState = newState;
@@ -180,4 +224,12 @@ bool GBFansControl::wasState(CONTROL_STATES state)
 bool GBFansControl::changed()
 {
     return _isChanged;
+}
+
+/**
+ * How long were we in this State for?
+ */
+unsigned long GBFansControl::duration()
+{
+    return (unsigned long)(_currentMillis - _lastDebounceTime);
 }
