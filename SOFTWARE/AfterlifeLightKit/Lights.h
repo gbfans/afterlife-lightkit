@@ -1,6 +1,8 @@
 #define FASTLED_INTERNAL //remove annoying pragma messages
 #include "FastLED.h"
 
+#include <Ramp.h>
+
 #include "ConfigManager.h"
 
 #ifndef Lights_h
@@ -18,6 +20,9 @@ class Lights {
 
         void tickPowercell();
         void tickCyclotron();
+        void setSpeed(String light, unsigned char value, unsigned int delay);
+        void setBrightness(String light, unsigned char value, unsigned int delay);
+        
     private:
         // Private Methods
         bool _checkTimer(unsigned long &previous, unsigned long interval);
@@ -33,6 +38,12 @@ class Lights {
         int _currentPowercell = 0;
         int _currentCyclotron = 0;
 
+        unsigned char _powercellSpeed;
+        unsigned char _powercellBrightness;
+
+        unsigned char _cyclotronSpeed;
+        unsigned char _cyclotronBrightness;
+
         bool _isDirty = false;
 
         ConfigManager _configManager;
@@ -46,6 +57,11 @@ class Lights {
          */
         CRGB _powercellLEDS[20];
         CRGB _cyclotronLEDS[100];
+
+        ramp _cyclotronSpeedRamp;
+        ramp _cyclotronBrightnessRamp;
+        ramp _powercellSpeedRamp;
+        ramp _powercellBrightnessRamp;
 };
 
 #endif
