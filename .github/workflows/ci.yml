@@ -3,12 +3,38 @@ name: PlatformIO CI
 on: [push]
 
 jobs:
+
+    get_default_envs:
+        name: Gather Environments
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.cache/pip
+                      ~/.platformio/.cache
+                  key: ${{ runner.os }}-pio
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: '3.9'
+            - name: Install PlatformIO Core
+            - name: Get default environments
+              id: envs
+              run: |
+                    echo "::set-output name=environments::$(pio project config --json-output | jq -cr '.[0][1][0][1]')"
+        outputs:
+            environments: ${{ steps.envs.outputs.environments }}
+
     build:
 
         runs-on: ${{ matrix.os }}
+        needs: get_default_envs
+
         strategy:
             matrix:
                 os: [ubuntu-latest]
+                environment: ${{ fromJSON(needs.get_default_envs.outputs.environments) }}
 
         defaults:
             run:
@@ -30,10 +56,9 @@ jobs:
 
             - name: Run PlatformIO
               run: pio run
-            - name: List files
-              run: pwd && ls -a && ls -alh ./build_output/
             - uses: actions/upload-artifact@v3
               with:
                   name: firmware-${{ matrix.environment }}
+                  # We need to specify the full path as currently upload-artifact doesn't respect the working-directory
                   path: |
                       ./SOFTWARE/AfterlifeLightKit/build_output/d1_mini/firmware.bin
