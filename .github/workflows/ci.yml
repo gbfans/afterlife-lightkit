@@ -29,11 +29,11 @@ jobs:
               run: pip install --upgrade platformio
 
             - name: Run PlatformIO
-              run: pio ci --project-conf=platformio.ini .
+              run: pio run
             - name: List files
-              run: pwd && ls -a && ls -alh .pio/build/d1_mini/
+              run: pwd && ls -a && ls -alh ./build_output/
             - uses: actions/upload-artifact@v3
               with:
                   name: firmware-${{ matrix.environment }}
                   path: |
-                      ./SOFTWARE/AfterlifeLightKit/.pio/build/d1_mini/firmware.bin
+                      ./SOFTWARE/AfterlifeLightKit/build_output/d1_mini/firmware.bin
