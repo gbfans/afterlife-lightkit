@@ -31,7 +31,7 @@ jobs:
             - name: Run PlatformIO
               run: pio ci --project-conf=platformio.ini .
             - name: List files
-              run: pwd && ls
+              run: pwd && ls -a && ls -alh .pio/build/d1_mini/
             - uses: actions/upload-artifact@v3
               with:
                   name: firmware-${{ matrix.environment }}
