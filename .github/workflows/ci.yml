@@ -7,6 +7,7 @@ jobs:
     get_default_envs:
         name: Gather Environments
         runs-on: ubuntu-latest
+
         steps:
             - uses: actions/checkout@v3
             - uses: actions/cache@v3
@@ -19,6 +20,7 @@ jobs:
               with:
                   python-version: '3.9'
             - name: Install PlatformIO Core
+              run: pip install --upgrade platformio
             - name: Get default environments
               id: envs
               run: |
