@@ -67,4 +67,4 @@ jobs:
                   name: firmware-${{ matrix.environment }}
                   # We need to specify the full path as currently upload-artifact doesn't respect the working-directory
                   path: |
-                      ./SOFTWARE/AfterlifeLightKit/build_output/d1_mini/firmware.bin
+                      ./SOFTWARE/AfterlifeLightKit/build_output/${{ matrix.environment }}/firmware.bin
