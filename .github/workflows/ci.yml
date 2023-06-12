@@ -1,0 +1,70 @@
+name: PlatformIO CI
+
+on: [push]
+
+jobs:
+
+    get_default_envs:
+        name: Gather Environments
+        runs-on: ubuntu-latest
+
+        defaults:
+            run:
+                working-directory: ./SOFTWARE/AfterlifeLightKit
+
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.cache/pip
+                      ~/.platformio/.cache
+                  key: ${{ runner.os }}-pio
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: '3.9'
+            - name: Install PlatformIO Core
+              run: pip install --upgrade platformio
+            - name: Get default environments
+              id: envs
+              run: |
+                    echo "environments=$(pio project config --json-output | jq -cr '.[0][1][0][1]')" >> $GITHUB_OUTPUT
+        outputs:
+            environments: ${{ steps.envs.outputs.environments }}
+
+    build:
+
+        runs-on: ${{ matrix.os }}
+        needs: get_default_envs
+
+        strategy:
+            matrix:
+                os: [ubuntu-latest]
+                environment: ${{ fromJSON(needs.get_default_envs.outputs.environments) }}
+
+        defaults:
+            run:
+                working-directory: ./SOFTWARE/AfterlifeLightKit
+
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.cache/pip
+                      ~/.platformio/.cache
+                  key: ${{ runner.os }}-pio
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: '3.9'
+            - name: Install PlatformIO Core
+              run: pip install --upgrade platformio
+
+            - name: Run PlatformIO
+              run: pio run -e ${{ matrix.environment }}
+            - uses: actions/upload-artifact@v3
+              with:
+                  name: firmware-${{ matrix.environment }}
+                  # We need to specify the full path as currently upload-artifact doesn't respect the working-directory
+                  path: |
+                      ./SOFTWARE/AfterlifeLightKit/build_output/${{ matrix.environment }}/firmware.bin
