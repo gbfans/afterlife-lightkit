@@ -180,10 +180,10 @@ void GBFansControl::update()
     if (newState != _currentState)
     {
         // Input has changed
-//        debug("Changed! - Old: ");
-//        debug(_currentState);
-//        debug(", New: ");
-//        debugln(newState);
+        debug("Changed! - Old: ");
+        debug(_currentState);
+        debug(", New: ");
+        debugln(newState);
 
         _lastDebounceTime = _currentMillis;
         _isChanged = true;

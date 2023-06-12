@@ -1,6 +1,3 @@
-/**
- *
- */
 #ifndef ConfigManager_h
 #define ConfigManager_h
 
@@ -21,6 +18,9 @@ class ConfigManager  {
 
     private:
         Configuration _configuration;
+        void _extractStripSettings(StripSettings& config, JsonVariant settings, const char* stripId);
+        LIGHT_EFFECTS _convertEffect(const char *input);
+        unsigned long _hexToUnsignedLong(const char *rgb32_str_);
 };
 
 #endif

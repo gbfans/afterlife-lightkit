@@ -1,51 +1,26 @@
 {
-    "defaults": {
-        "mode": "afterlife"
-    },
     "modes": {
-        "afterlife": {
-            "powercell": {
-                "speed": 40,
-                "color": {
-                    "red": 0,
-                    "green": 0,
-                    "blue": 255
-                }
+        "proton": {
+            "color": {
+                "powercell": "0x0000FF",
+                "cyclotron": "0xFF0000",
+                "nfilter": "0xFFFFFF"
             },
-            "cyclotron": {
-                "speed": 10,
-                "direction": "forward",
-                "color": {
-                    "red": 255,
-                    "green": 0,
-                    "blue": 0
-                }
-            },
-            "nfilter": {
-                "speed": 500,
-                "color": {
-                    "red": 255,
-                    "green": 255,
-                    "blue": 255
-                }
-            }
-        },
-        "classic": {
-            "powercell": {
-                "speed": 40,
-                "color": {
-                    "red": 0,
-                    "green": 0,
-                    "blue": 255
-                }
-            },
-            "cyclotron": {
-                "speed": 300,
-                "direction": "forward",
-                "color": {
-                    "red": 255,
-                    "green": 0,
-                    "blue": 0
+            "states": {
+                "idle": {
+                    "powercell": {
+                        "effect": "SPINNING",
+                        "startSpeed": 25,
+                        "endSpeed": 5,
+                        "duration": 3000,
+                        "reverse": false
+                    },
+                    "cyclotron": {
+                        "effect": "CYCLING"
+                    },
+                    "nfilter": {
+                        "effect": "OFF"
+                    }
                 }
             }
         }

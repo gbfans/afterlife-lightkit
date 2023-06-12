@@ -18,10 +18,10 @@ Lights::Lights()
 
 void Lights::init()
 {
+    debugln(F("Initializing Lights"));
     _configManager.init();
 
-    _configuration = _configManager.getConfiguration();
-    _settings = _configManager.getModeSettings(_configuration.defaultMode);
+    _settings = _configManager.getModeSettings(MODE_PROTON); // TODO: Update this to work dynamically
 
     // Initialize FastLED instances
     FastLED.addLeds<WS2812B_noflicker, POWERCELL_PIN, GRB>(_powercellLEDS, POWERCELL_LENGTH);
@@ -35,40 +35,26 @@ void Lights::init()
     _powercellFX.init(
             _powercellLEDS,
             POWERCELL_LENGTH,
-            CRGB(
-                    _settings.powercell.color.red,
-                    _settings.powercell.color.green,
-                    _settings.powercell.color.blue
-            ),
-            _settings.powercell.direction,
-            _settings.powercell.speed
+            CRGB(_settings.powercell.color)
     );
 
     // Initialize Cyclotron effects
     _cyclotronFX.init(
             _cyclotronLEDS,
             CYCLOTRON_LENGTH,
-            CRGB(
-                    _settings.cyclotron.color.red,
-                    _settings.cyclotron.color.green,
-                    _settings.cyclotron.color.blue
-            ),
-            _settings.cyclotron.direction,
-            _settings.cyclotron.speed
+            CRGB(_settings.cyclotron.color)
     );
 
     // Initialize NFilter effects
     _nfilterFX.init(
             _nfilterLEDS,
             NFILTER_LENGTH,
-            CRGB(
-                    _settings.nfilter.color.red,
-                    _settings.nfilter.color.green,
-                    _settings.nfilter.color.blue
-            ),
-            _settings.nfilter.direction,
-            _settings.nfilter.speed
+            CRGB(_settings.nfilter.color)
     );
+
+    // Off by default
+    setState(PACK_INACTIVE);
+    update(true);
 }
 
 void Lights::update(bool force)
@@ -128,42 +114,44 @@ void Lights::setState(PACKSTATES state)
     //debug("Lights State changed to: ");
     switch (_currentState)
     {
-        case INACTIVE:
+        case PACK_INACTIVE:
             _inactive();
             //debugln("inactive");
             break;
-        case START:
+        case PACK_START:
             _startup();
             //debugln("start");
             break;
-        case IDLE:
+        case PACK_IDLE:
             _idle();
             //debugln("idle");
             break;
-        case FIRING:
+        case PACK_FIRING:
             _firing();
             //debugln("firing");
             break;
-        case OVERHEATING:
+        case PACK_OVERHEATING:
             _overheating();
             //debugln("overheating");
             break;
-        case VENTING:
+        case PACK_VENTING:
             _venting();
             //debugln("venting");
             break;
-        case SHUTDOWN:
+        case PACK_SHUTDOWN:
             _shutdown();
             //debugln("shutdown");
-            break;
-        case PARTY:
-            _party();
-            //debugln("party");
             break;
     }
 }
 
 void Lights::_inactive()
+{
+    // Switch off all lights
+    _stop();
+}
+
+void Lights::_stop()
 {
     // Switch off all lights
     _cyclotronFX.stop();
@@ -174,90 +162,90 @@ void Lights::_inactive()
 void Lights::_startup()
 {
     // Switch off all lights (they should be off already during startup)
-    _cyclotronFX.stop();
-    _powercellFX.stop();
-    _nfilterFX.stop();
-
-    _cyclotronFX.changeBrightness(255);
-
-    _cyclotronFX.setEffect(CYCLING, true);
+    _cyclotronFX.setEffect(EFFECT_CYCLING, true);
     // Ramp up to full idle speed over 3 seconds
-    _cyclotronFX.changeSpeed(100); // Start slow
-    _cyclotronFX.changeSpeed(10, 3000, QUADRATIC_INOUT);
+    // Start slow at speed 100, increase to speed 10 over 3 seconds
+    _cyclotronFX.changeSpeedFrom(100, 10, 3000, QUADRATIC_INOUT);
 
     // Special PowerCell Startup animation
-    _powercellFX.changeSpeed(25);
-    _powercellFX.changeSpeed(5, 3000, QUADRATIC_INOUT);
-    _powercellFX.setEffect(TETRIS, true);
+    // Start at speed 25, increase to 5 over 3 seconds
+    _powercellFX.changeSpeedFrom(25, 5, 3000, QUADRATIC_INOUT);
+    _powercellFX.setEffect(EFFECT_TETRIS, true);
     _powercellFX.setReverse();
+
+    _nfilterFX.setEffect(EFFECT_OFF);
 }
 
 void Lights::_idle()
 {
+    // Switch off NFilter (if on)
+    _nfilterFX.stop();
+
     // NOTE: We should already be at this speed after Startup, but subsequent effect changes (firing etc) will return
     // here, so this ensures a gradual ramp up/down from our previous speed.
-    _cyclotronFX.setEffect(CYCLING);
+    _cyclotronFX.setEffect(EFFECT_CYCLING);
     _cyclotronFX.changeSpeed(10, 1000, QUADRATIC_INOUT);
 
     // Set to SPINNING for standard mode
     // Set to CYCLING for that one Afterlife scene where Ray was knocked over and the PowerCell was misconfigured
-    _powercellFX.setEffect(SPINNING, true);
-    _powercellFX.changeSpeed(50);
-
-    _nfilterFX.stop();
-    _nfilterFX.reset();
+    //_powercellFX.setEffect(EFFECT_SPINNING, true);
+    _powercellFX.setEffect(_settings.powercell.idle.effect, true);
+    _powercellFX.changeSpeed(50, 0, QUADRATIC_INOUT); // instant speed change
 }
 
 void Lights::_shutdown()
 {
+    // Switch off NFilter (if on)
+    _nfilterFX.stop();
+
     // Afterlife: Slow down the Cyclotron over 3 seconds
-    _cyclotronFX.setEffect(CYCLING); // in case we were non-idle at Shutdown
+    _cyclotronFX.setEffect(EFFECT_CYCLING); // in case we were non-idle (firing/venting/etc) at Shutdown
     _cyclotronFX.changeSpeed(100, 3000, LINEAR);
 
     // Fade out PowerCell over 2-3 seconds
-    _powercellFX.allOn();
+    //_powercellFX.allOn();
+    _powercellFX.setEffect(EFFECT_DESCEND, true);
     _powercellFX.changeSpeed(round(2000/POWERCELL_LENGTH));
-    _powercellFX.setEffect(DESCEND, true);
     _powercellFX.setReverse();
-
-    // Switch off NFilter (if on)
-    _nfilterFX.stop();
 }
 
 void Lights::_firing()
 {
+    // Switch off NFilter (if on)
+    _nfilterFX.stop();
+
     // Make Cyclotron faster (3 instead of 5 delay), take 2 seconds to speed up
-    _cyclotronFX.setEffect(CYCLING);
+    _cyclotronFX.setEffect(EFFECT_CYCLING);
     _cyclotronFX.changeSpeed(3, 2000, QUADRATIC_INOUT);
 
     // Make Power Cell faster (25 instead of 50 delay), take 2 seconds to speed up
-    _powercellFX.setEffect(SPINNING);
+    _powercellFX.setEffect(EFFECT_SPINNING);
     _powercellFX.changeSpeed(25, 2000, QUADRATIC_INOUT);
-
-    _nfilterFX.stop();
 }
 
 void Lights::_overheating()
 {
-    // Make Power Cell alternate
-    _powercellFX.setEffect(ALTERNATE, true);
-    _powercellFX.changeSpeed(200);
+    // Switch off NFilter (if on)
+    _nfilterFX.stop();
 
     // Faster Cyclotron
+    _cyclotronFX.setEffect(EFFECT_CYCLING);
     _cyclotronFX.changeSpeed(2, 3000, QUADRATIC_INOUT);
 
-    // Illuminate the N-Filter
-    //_nfilterFX.setEffect(ALL_ON);
+    // Make Power Cell alternate
+    _powercellFX.setEffect(EFFECT_ALTERNATE, true);
+    _powercellFX.changeSpeed(200);
+
+    // TODO: We won't actually switch the nfilter on during overheating, it will be during venting
+    _nfilterFX.setEffect(EFFECT_ALL_ON);
 }
 
 void Lights::_venting()
 {
     // To be implemented
 
-    _nfilterFX.setEffect(ALL_ON);
-}
+    // We don't need to do anything to the powercell/cyclotron
+    // so they should continue doing what they're doing
 
-void Lights::_party()
-{
-    // To be implemented
+    _nfilterFX.setEffect(EFFECT_ALL_ON);
 }

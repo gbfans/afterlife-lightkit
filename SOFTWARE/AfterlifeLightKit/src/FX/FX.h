@@ -9,7 +9,7 @@
 class FX {
     public:
         // Some kind of initialize
-        void init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction, int speed);
+        void init(CRGB *pixels, int stripLength, CRGB ledColor);
         // Set which effect to do
         void setEffect(LIGHT_EFFECTS effect, bool reset = false);
         // Set the direction (which will also reset the current pixel)
@@ -18,10 +18,14 @@ class FX {
         void changeSpeed(int newSpeed);
         // Gradually change the speed of the animation
         void changeSpeed(int newSpeed, int delay, ramp_mode rampMode);
+        // Change the speed of the animation but from a specific starting speed
+        void changeSpeedFrom(int startSpeed, int newSpeed, int delay, ramp_mode rampMode);
         // Set the brightness (instantly) of the animation
         void changeBrightness(int newBrightness);
         // Get the current Brightness (used by FastLED directly)
         int updateBrightness();
+        // Change the Colour of the LEDs in this strip
+        void changeLedColor(CRGB ledColor);
         // Call every 1ms to get the next pixel data
         bool update(bool force = false);
         // Stop the effect (instantly switch off all LEDs)
@@ -55,19 +59,19 @@ class FX {
         // Check whether the timer has elapsed
         bool _checkTimer();
 
-        // Return the current LED Colour with brightness applied
+        // Return the current LED Color with brightness applied
         CRGB _getLedColor();
 
         CRGB *_pixels;
         int _stripLength;
         int _currentPixel = 0;
-        int _speed;
-        int _originalSpeed;
-        int _brightness;
-        int _originalBrightness;
+        int _speed = 50; // These should be updated almost immediately with real values
+        int _originalSpeed = 50;
+        int _brightness = 255;
+        int _originalBrightness = 255;
         unsigned long _previousMillis = 0;
         LIGHT_EFFECTS _effect;
-        DIRECTIONS _direction;
+        DIRECTIONS _direction = LIGHTS_FORWARD;
         CRGB _ledColor;
         rampInt _speedRamp;
 

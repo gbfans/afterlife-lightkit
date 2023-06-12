@@ -27,10 +27,7 @@ class Lights {
         void setState(PACKSTATES state);
     private:
         // Private Properties
-        bool _isDirty = false;
-
         ConfigManager _configManager;
-        Configuration _configuration;
         Settings _settings;
         MODES _currentMode;
         PACKSTATES _currentState;
@@ -42,6 +39,7 @@ class Lights {
         CRGB _cyclotronLEDS[CYCLOTRON_LENGTH];
         CRGB _nfilterLEDS[NFILTER_LENGTH];
 
+        void _stop();
         void _inactive();
         void _startup();
         void _idle();
@@ -49,7 +47,6 @@ class Lights {
         void _overheating();
         void _venting();
         void _shutdown();
-        void _party();
 };
 
 #endif
