@@ -1,7 +1,10 @@
 #include "Arduino.h"
+#include "Settings.h"
 
 #ifndef Control_h
 #define Control_h
+
+#define HISTORY_SIZE 7
 
 enum CONTROL_MODES {
     MODE_STANDALONE,
@@ -41,6 +44,7 @@ class GBFansControl {
       bool isMode(CONTROL_MODES mode);
       bool isState(CONTROL_STATES state);
       bool wasState(CONTROL_STATES state);
+      bool isSequenceMatch(String comparison);
       CONTROL_MODES getMode();
       CONTROL_STATES getCurrentState();
       CONTROL_STATES getPreviousState();
@@ -48,6 +52,10 @@ class GBFansControl {
       CONTROL_MODES _mode = MODE_CONTROLLED;
       CONTROL_STATES _currentState = STATE_OFF;
       CONTROL_STATES _previousState = STATE_OFF;
+      CONTROL_STATES _history[HISTORY_SIZE] = {};
+      String _historySequence;
+      bool _hasReturnedSequenceMatch = false;
+      void _pushHistory(CONTROL_STATES newState);
       bool _isChanged = false;
       unsigned long _lastDebounceTime = 0;
       unsigned long _currentMillis = 0;

@@ -1,5 +1,8 @@
+#ifndef Lights_h
+
 // Hopefully prevent jitter as per https://github.com/jasoncoon/esp8266-fastled-webserver/issues/85#issuecomment-618656354
-#define FASTLED_ALLOW_INTERRUPTS 0
+//#define FASTLED_ALLOW_INTERRUPTS 0
+#define FASTLED_INTERRUPT_RETRY_COUNT 0
 
 //remove annoying pragma messages
 #define FASTLED_INTERNAL
@@ -10,7 +13,6 @@
 #include "../ConfigManager/ConfigManager.h"
 #include "../FX/FX.h"
 
-#ifndef Lights_h
 #define Lights_h
 
 class Lights {

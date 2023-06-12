@@ -1,7 +1,18 @@
 #ifndef SETTINGS_h
 #define SETTINGS_h
 
-#include <Ramp.h>
+// Set DEBUG to 1 to enable debug output to Serial
+// IMPORTANT: Leave DEBUG disabled in Production mode
+// as this can have a negative performance impact.
+// DO NOT COMMIT "DEBUG=1"
+#define DEBUG 0
+#if DEBUG == 1
+    #define debug(x) Serial.print(x)
+    #define debugln(x) Serial.println(x)
+#else
+    #define debug(x)
+    #define debugln(x)
+#endif
 
 // Which pins the Powercell, Cyclotron, and N-Filter lights are connected to
 #define POWERCELL_PIN 0

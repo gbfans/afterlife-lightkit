@@ -125,40 +125,40 @@ void Lights::setState(PACKSTATES state)
      *            All of these are configurable by the user.
      */
 
-    //Serial.print("Lights State changed to: ");
+    //debug("Lights State changed to: ");
     switch (_currentState)
     {
         case INACTIVE:
             _inactive();
-            //Serial.println("inactive");
+            //debugln("inactive");
             break;
         case START:
             _startup();
-            //Serial.println("start");
+            //debugln("start");
             break;
         case IDLE:
             _idle();
-            //Serial.println("idle");
+            //debugln("idle");
             break;
         case FIRING:
             _firing();
-            //Serial.println("firing");
+            //debugln("firing");
             break;
         case OVERHEATING:
             _overheating();
-            //Serial.println("overheating");
+            //debugln("overheating");
             break;
         case VENTING:
             _venting();
-            //Serial.println("venting");
+            //debugln("venting");
             break;
         case SHUTDOWN:
             _shutdown();
-            //Serial.println("shutdown");
+            //debugln("shutdown");
             break;
         case PARTY:
             _party();
-            //Serial.println("party");
+            //debugln("party");
             break;
     }
 }
