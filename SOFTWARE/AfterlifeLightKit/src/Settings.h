@@ -77,13 +77,41 @@ enum LIGHT_EFFECTS {
     EFFECT_BLINKING,
 };
 
+/**
+ * The Color of this lightStrip in each Mode
+ * NOTE: We use the same Color across all States
+ * (i.e. Red while starting up, idle, firing, AND shutting down in Proton Mode).
+ */
+typedef struct ColorConfig
+{
+    unsigned long powercell;
+    unsigned long cyclotron;
+    unsigned long nfilter;
+
+} ColorConfig;
+
+typedef struct ColorSettings
+{
+    ColorConfig proton;
+    ColorConfig slime;
+    ColorConfig stasis;
+    ColorConfig meson;
+} ColorSettings;
+
 typedef struct StateConfig
 {
+    // Which Effect should we use for this State?
     LIGHT_EFFECTS effect;
+    // What speed (interval) should we start at?
     int startSpeed;
+    // What speed (interval) should we end at?
     int endSpeed;
+    // How long (in milliseconds) should we take to transition to the end speed?
     int duration;
+    // Should we reverse the animation?
     bool reverse = false;
+    // Should we perform a reset before starting this animation?
+    bool reset = false;
 } StateConfig;
 
 /**
@@ -91,33 +119,22 @@ typedef struct StateConfig
  */
 typedef struct StripSettings
 {
-    // Color is the same across all States
-    unsigned long color;
-    StateConfig inactive;
-    StateConfig start;
-    StateConfig idle;
-    StateConfig firing;
-    StateConfig overheating;
-    StateConfig venting;
-    StateConfig shutdown;
+    StateConfig powercell;
+    StateConfig cyclotron;
+    StateConfig nfilter;
+
 } StripSettings;
 
-typedef struct Settings
-{
-    StripSettings powercell;
-    StripSettings cyclotron;
-    StripSettings nfilter;
-} Settings;
-
-/**
- * How the pack should behave in each Mode
- */
 typedef struct Configuration
 {
-    Settings proton;
-    Settings slime;
-    Settings stasis;
-    Settings meson;
+    ColorSettings color;
+    StripSettings inactive;
+    StripSettings start;
+    StripSettings idle;
+    StripSettings firing;
+    StripSettings overheating;
+    StripSettings venting;
+    StripSettings shutdown;
 } Configuration;
 
 #endif

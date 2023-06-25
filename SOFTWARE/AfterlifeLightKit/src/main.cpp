@@ -27,6 +27,8 @@ void setup()
     controls.init();
     lights.init();
     server.init();
+
+    debugln(F("Initialized and Ready"));
 }
 
 void loop()
@@ -73,23 +75,52 @@ void loop()
     ) {
         // Firing
         // NOTE: For the Pack Lights there is functionally no difference between MOVIE and TVG mode firing
+
+
         // TODO: Remove the duration check!
-        if (controls.duration() > 5000)
-        {
-            // We have been firing for > 5 seconds
-            //debugln(F("Overheating"));
-            lights.setState(PACK_OVERHEATING);
-        }
-        else
-        {
+//        if (controls.duration() > 5000)
+//        {
+//            // We have been firing for > 5 seconds
+//            //debugln(F("Overheating"));
+//            lights.setState(PACK_OVERHEATING);
+//        }
+//        else
+//        {
             //debugln(F("Firing"));
             lights.setState(PACK_FIRING);
-        }
+        //}
+    }
+    else if (
+            controls.isState(STATE_VENTING_ACTION) ||
+            controls.isState(STATE_AUTOMATIC_VENTING)
+    ) {
+        // Venting, either manually or automatically
+        lights.setState(PACK_VENTING);
     }
     else if (controls.isState(STATE_POWER_DOWN))
     {
         //debugln(F("Powering Down"));
         lights.setState(PACK_SHUTDOWN);
+    }
+    else if (controls.isState(STATE_RED_CYCLOTRON)) {
+        // Set the Cyclotron to Red (ie Mode to Proton)
+        //debugln(F("Proton Mode"));
+        lights.setMode(MODE_PROTON);
+    }
+    else if (controls.isState(STATE_GREEN_CYCLOTRON)) {
+        // Set the Cyclotron to Green (ie Mode to Slime)
+        //debugln(F("Slime Mode"));
+        lights.setMode(MODE_SLIME);
+    }
+    else if (controls.isState(STATE_BLUE_CYCLOTRON)) {
+        // Set the Cyclotron to Blue (ie Mode to Stasis)
+        //debugln(F("Stasis Mode"));
+        lights.setMode(MODE_STASIS);
+    }
+    else if (controls.isState(STATE_ORANGE_CYCLOTRON)) {
+        // Set the Cyclotron to Red (ie Mode to Meson)
+        //debugln(F("Meson Mode"));
+        lights.setMode(MODE_MESON);
     }
 
     // We should always update Lights AFTER the State has been set

@@ -1,27 +1,135 @@
 {
-    "modes": {
+    "color": {
         "proton": {
-            "color": {
                 "powercell": "0x0000FF",
                 "cyclotron": "0xFF0000",
                 "nfilter": "0xFFFFFF"
+        },
+        "slime": {
+                "powercell": "0x0000FF",
+                "cyclotron": "0x00FF00",
+                "nfilter": "0xFFFFFF"
+        },
+        "stasis": {
+                "powercell": "0x0000FF",
+                "cyclotron": "0x0000FF",
+                "nfilter": "0xFFFFFF"
+        },
+        "meson": {
+                "powercell": "0x0000FF",
+                "cyclotron": "0xFFA500",
+                "nfilter": "0xFFFFFF"
+        }
+    },
+    "states": {
+        "inactive": {
+            "powercell": {
+                "effect": "OFF"
             },
-            "states": {
-                "idle": {
-                    "powercell": {
-                        "effect": "SPINNING",
-                        "startSpeed": 25,
-                        "endSpeed": 5,
-                        "duration": 3000,
-                        "reverse": false
-                    },
-                    "cyclotron": {
-                        "effect": "CYCLING"
-                    },
-                    "nfilter": {
-                        "effect": "OFF"
-                    }
-                }
+            "cyclotron": {
+                "effect": "OFF"
+            },
+            "nfilter": {
+                "effect": "OFF"
+            }
+        },
+        "start": {
+            "powercell": {
+                "effect": "TETRIS",
+                "startSpeed": 25,
+                "endSpeed": 5,
+                "duration": 3000,
+                "reverse": true,
+                "reset": true
+            },
+            "cyclotron": {
+                "effect": "CYCLING",
+                "startSpeed": 100,
+                "endSpeed": 10,
+                "duration": 3000
+            },
+            "nfilter": {
+                "effect": "OFF"
+            }
+        },
+        "idle": {
+            "powercell": {
+                "effect": "SPINNING",
+                "endSpeed": 50,
+                "duration": 0,
+                "reset": true
+            },
+            "cyclotron": {
+                "effect": "CYCLING",
+                "endSpeed": 5,
+                "duration": 1000
+            },
+            "nfilter": {
+                "effect": "OFF"
+            }
+        },
+        "firing": {
+            "powercell": {
+                "effect": "SPINNING",
+                "endSpeed": 25,
+                "duration": 2000
+            },
+            "cyclotron": {
+                "effect": "CYCLING",
+                "endSpeed": 3,
+                "duration": 2000
+            },
+            "nfilter": {
+                "effect": "OFF"
+            }
+        },
+        "overheating": {
+            "powercell": {
+                "effect": "ALTERNATE",
+                "endSpeed": 200,
+                "duration": 0,
+                "reset": true
+            },
+            "cyclotron": {
+                "effect": "CYCLING",
+                "endSpeed": 2,
+                "duration": 3000
+            },
+            "nfilter": {
+                "effect": "OFF"
+            }
+        },
+        "venting": {
+            "powercell": {
+                "effect": "ALTERNATE",
+                "endSpeed": 200,
+                "duration": 0,
+                "reset": true
+            },
+            "cyclotron": {
+                "effect": "CYCLING",
+                "endSpeed": 2,
+                "duration": 3000
+            },
+            "nfilter": {
+                "effect": "ALL_ON"
+            }
+        },
+        "shutdown": {
+            "powercell": {
+                "effect": "DESCEND",
+                "endSpeed": 130,
+                "duration": 0,
+                "reverse": true,
+                "reset": true
+            },
+            "cyclotron": {
+                "effect": "CYCLING",
+                "endSpeed": 100,
+                "duration": 3000
+            },
+            "nfilter": {
+                "effect": "OFF"
             }
         }
     }

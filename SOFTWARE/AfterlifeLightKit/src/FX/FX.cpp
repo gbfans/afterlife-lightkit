@@ -47,11 +47,47 @@ void FX::setEffect(LIGHT_EFFECTS effect, bool reset)
     _effect = effect;
 }
 
+void FX::setFromConfig(StateConfig config)
+{
+//    debug(F("Setting Config Effect: "));
+//    debugln(config.effect);
+    setEffect(config.effect, config.reset);
+
+    if (config.effect == EFFECT_OFF || config.effect == EFFECT_ALL_ON) {
+        // There's no need to set any other options if the effect is 'off' or 'all on'
+        return;
+    }
+
+    setReverse(config.reverse);
+
+    int startSpeed = config.startSpeed;
+    if (!startSpeed) {
+        // A Starting speed wasn't defined
+        // Set to current speed
+        startSpeed = _speed;
+    }
+
+    changeSpeedFrom(startSpeed, config.endSpeed, config.duration, QUADRATIC_INOUT);
+}
+
 void FX::setReverse(bool isReverse)
 {
     if (!isReverse) {
+        // Change direction to forwards
+        if (_direction == LIGHTS_FORWARD) {
+            // We are already running in this direction
+            return;
+        }
+
         _currentPixel = _getFirstPixel();
         _direction = LIGHTS_FORWARD;
+        return;
+    }
+
+    // Change direction to reverse
+    if (_direction == LIGHTS_REVERSE)
+    {
+        // We are already running in this direction
         return;
     }
 
@@ -112,7 +148,7 @@ void FX::changeBrightness(int newBrightness)
  */
 int FX::updateBrightness()
 {
-      return _brightness;
+    return _brightness;
 }
 
 /**
@@ -121,6 +157,10 @@ int FX::updateBrightness()
  */
 void FX::changeLedColor(CRGB ledColor)
 {
+    if (_ledColor == ledColor) {
+        return;
+    }
+
     _ledColor = ledColor;
 }
 
@@ -203,6 +243,7 @@ void FX::_clear()
 
 void FX::_allOn()
 {
+    //debugln(F("All On"));
     for (uint16_t i = 0; i < _stripLength; i++)
     {
         /**
@@ -214,8 +255,6 @@ void FX::_allOn()
 
 void FX::_spinning()
 {
-    _direction = LIGHTS_FORWARD;
-
     for (uint16_t i = 0; i < _stripLength; i++)
     {
         /**
@@ -236,8 +275,6 @@ void FX::_spinning()
 
 void FX::_cycling()
 {
-    _direction = LIGHTS_FORWARD;
-
     for (uint16_t i = 0; i < _stripLength; i++)
     {
         /**
@@ -286,6 +323,7 @@ void FX::_cylon()
     }
 }
 
+// Alternate all pixels
 void FX::_alternate()
 {
     for (uint16_t i = 0; i < _stripLength; i++) {
@@ -317,8 +355,6 @@ void FX::_blinking()
  */
 void FX::_tetris()
 {
-    _direction = LIGHTS_REVERSE;
-
     for (uint16_t i = 0; i < _stripLength; i++)
     {
         // If LED is below the current progress, OR is the current pixel, we light it up

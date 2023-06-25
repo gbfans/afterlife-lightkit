@@ -2,6 +2,17 @@
 
 void ConfigManager::init()
 {
+    /**
+     * TODO: We need to check if config.json exists on the filesystem.
+     * If not, we should load the 'default' config.json as encoded by the node sketch (or just store default values somehow)
+     * _configuration.preset = "afterlife.json"
+     *
+     * Next, we look for this preset on the filesystem.
+     * If not found, we revert to the default preset and use this.
+     * If found, we load it and use it for the _extractStripSettings function.
+     *
+     *
+     */
     if (!LittleFS.begin())
     {
         /*
@@ -33,7 +44,7 @@ void ConfigManager::init()
     // Allocate a temporary JsonDocument
     // Don't forget to change the capacity to match your requirements.
     // Use arduinojson.org/v6/assistant to compute the capacity.
-    StaticJsonDocument<1024> doc;
+    StaticJsonDocument<2100> doc;
     if (configFile.available())
     {
         DeserializationError error = deserializeJson(doc, configFile);
@@ -54,26 +65,20 @@ void ConfigManager::init()
      */
      serializeJsonPretty(doc, Serial);
 
-    // Power Cell
-    _extractStripSettings(
-            _configuration.proton.powercell,
-            doc["modes"]["proton"],
-            "powercell"
-    );
+     // Extract Strip Colors
+    _extractStripColors(_configuration.color.proton, doc["color"]["proton"]);
+    _extractStripColors(_configuration.color.slime, doc["color"]["slime"]);
+    _extractStripColors(_configuration.color.stasis, doc["color"]["stasis"]);
+    _extractStripColors(_configuration.color.meson, doc["color"]["meson"]);
 
-    // Cyclotron
-    _extractStripSettings(
-            _configuration.proton.cyclotron,
-            doc["modes"]["proton"],
-            "cyclotron"
-    );
-
-    // N-Filter
-    _extractStripSettings(
-            _configuration.proton.nfilter,
-            doc["modes"]["proton"],
-            "nfilter"
-    );
+    // Extract Strip Settings for each State
+    _extractStripSettings(_configuration.inactive, doc["states"]["inactive"]);
+    _extractStripSettings(_configuration.start, doc["states"]["start"]);
+    _extractStripSettings(_configuration.idle, doc["states"]["idle"]);
+    _extractStripSettings(_configuration.firing, doc["states"]["firing"]);
+    _extractStripSettings(_configuration.overheating, doc["states"]["overheating"]);
+    _extractStripSettings(_configuration.venting, doc["states"]["venting"]);
+    _extractStripSettings(_configuration.shutdown, doc["states"]["shutdown"]);
 
     // Demo: Save back?
     // EEPROM.begin(4098);
@@ -83,18 +88,27 @@ void ConfigManager::init()
     // eepromStream.flush();
 }
 
+void ConfigManager::_extractStripColors(
+    ColorConfig& config,
+    JsonVariant colors
+) {
+    config.powercell = _hexToUnsignedLong(colors["powercell"].as<const char *>());
+    config.cyclotron = _hexToUnsignedLong(colors["cyclotron"].as<const char *>());
+    config.nfilter = _hexToUnsignedLong(colors["nfilter"].as<const char *>());
+}
+
 void ConfigManager::_extractStripSettings(
     StripSettings& config,
-    JsonVariant settings,
-    const char* stripId
+    JsonVariant states
 ) {
     /**
      * TODO: We need to be checking if these JsonVariant elements actually exist (eg if invalid JSON),
      *       or else the entire device will crash instantly.
      */
-    config.color = _hexToUnsignedLong(settings["color"][stripId].as<const char *>());
 
-    config.idle.effect = _convertEffect(settings["states"]["idle"][stripId]["effect"].as<const char *>());
+    config.powercell = _convertConfigurationToStateConfig(states["powercell"]);
+    config.cyclotron = _convertConfigurationToStateConfig(states["cyclotron"]);
+    config.nfilter = _convertConfigurationToStateConfig(states["nfilter"]);
 }
 
 unsigned long ConfigManager::_hexToUnsignedLong(const char *rgb32_str_)
@@ -102,6 +116,19 @@ unsigned long ConfigManager::_hexToUnsignedLong(const char *rgb32_str_)
     return strtoul(rgb32_str_, 0, 16);
 }
 
+StateConfig ConfigManager::_convertConfigurationToStateConfig(JsonVariant state)
+{
+    StateConfig config;
+
+    config.effect = _convertEffect(state["effect"].as<const char *>());
+    config.startSpeed = state["startSpeed"].as<int>();
+    config.endSpeed = state["endSpeed"].as<int>();
+    config.duration = state["duration"].as<int>();
+    config.reverse = state["reverse"].as<bool>();
+    config.reset = state["reset"].as<bool>();
+
+    return config;
+}
 
 /**
  * TODO: This needs to be refactored to something cleaner/simpler
@@ -110,6 +137,8 @@ unsigned long ConfigManager::_hexToUnsignedLong(const char *rgb32_str_)
  */
 LIGHT_EFFECTS ConfigManager::_convertEffect(const char *input)
 {
+//    debug(F("Effect: "));
+//    debugln(input);
     if (strcmp(input, STR_EFFECT_OFF) == 0) {
         return EFFECT_OFF;
     }
@@ -119,8 +148,6 @@ LIGHT_EFFECTS ConfigManager::_convertEffect(const char *input)
     }
 
     if (strcmp(input, STR_EFFECT_CYCLING) == 0) {
-        debug("CYCLING: ");
-        debugln(input);
         return EFFECT_CYCLING;
     }
 
@@ -168,24 +195,24 @@ Configuration ConfigManager::getConfiguration()
 /**
  * Load all settings for Mode
  */
-Settings ConfigManager::getModeSettings(MODES mode)
+ColorConfig ConfigManager::getColorConfig(MODES mode)
 {
     switch (mode)
     {
-        default:
-        case MODE_PROTON:
-            return _configuration.proton;
-            break;
         case MODE_SLIME:
-            //return _configuration.
+            return _configuration.color.slime;
             break;
         case MODE_STASIS:
+            return _configuration.color.stasis;
             break;
         case MODE_MESON:
+            return _configuration.color.meson;
+            break;
+        default:
+        case MODE_PROTON:
+            return _configuration.color.proton;
             break;
     }
-
-    return _configuration.proton;
 }
 
 void ConfigManager::get(String key)
