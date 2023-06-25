@@ -12,6 +12,7 @@ class FX {
         void init(CRGB *pixels, int stripLength, CRGB ledColor);
         // Set which effect to do
         void setEffect(LIGHT_EFFECTS effect, bool reset = false);
+        void setFromConfig(StateConfig config);
         // Set the direction (which will also reset the current pixel)
         void setReverse(bool isReverse = true);
         // Set the Speed (instantly) of the animation
@@ -24,7 +25,7 @@ class FX {
         void changeBrightness(int newBrightness);
         // Get the current Brightness (used by FastLED directly)
         int updateBrightness();
-        // Change the Colour of the LEDs in this strip
+        // Change the Color of the LEDs in this strip
         void changeLedColor(CRGB ledColor);
         // Call every 1ms to get the next pixel data
         bool update(bool force = false);
