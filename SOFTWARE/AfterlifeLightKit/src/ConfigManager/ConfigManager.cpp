@@ -13,6 +13,15 @@ void ConfigManager::init()
         return;
     }
 
+//    Dir dir = LittleFS.openDir("/");
+//    while (dir.next()) {
+//        debug(dir.fileName());
+//        if(dir.fileSize()) {
+//            File f = dir.openFile("r");
+//            debugln(f.size());
+//        }
+//    }
+
     File configFile = LittleFS.open("/config.json", "r");
 
     if (!configFile)
@@ -34,40 +43,37 @@ void ConfigManager::init()
     }
 
     configFile.close();
-
+//
+//    const char* preset = doc["preset"];
+//    debug(F("Preset: "));
+//    debugln(preset);
+//
+//    return;
     /**
      * Output JSON Configuration as read for debugging.
      */
      serializeJsonPretty(doc, Serial);
 
-    /**
-     * TODO: How do we abstract this out?
-     */
-    //_configuration.classicSettings.powercellSpeed = doc["modes"]["classic"]["powercell"]["speed"] | 1000;
-
     // Power Cell
-    _configuration.afterlifeSettings.powercell.speed = doc["modes"]["afterlife"]["powercell"]["speed"] | 50;
-    _configuration.afterlifeSettings.powercell.color.red = doc["modes"]["afterlife"]["powercell"]["color"]["red"];
-    _configuration.afterlifeSettings.powercell.color.green = doc["modes"]["afterlife"]["powercell"]["color"]["green"];
-    _configuration.afterlifeSettings.powercell.color.blue = doc["modes"]["afterlife"]["powercell"]["color"]["blue"];
+    _extractStripSettings(
+            _configuration.proton.powercell,
+            doc["modes"]["proton"],
+            "powercell"
+    );
 
     // Cyclotron
-    _configuration.afterlifeSettings.cyclotron.speed = doc["modes"]["afterlife"]["cyclotron"]["speed"] | 5;
-    DIRECTIONS cyclotronDirection = LIGHTS_FORWARD;
-    if (doc["modes"]["afterlife"]["cyclotron"]["direction"] == "reverse") {
-        cyclotronDirection = LIGHTS_REVERSE;
-    }
-    _configuration.afterlifeSettings.cyclotron.direction = cyclotronDirection;
-
-    _configuration.afterlifeSettings.cyclotron.color.red = doc["modes"]["afterlife"]["cyclotron"]["color"]["red"];
-    _configuration.afterlifeSettings.cyclotron.color.green = doc["modes"]["afterlife"]["cyclotron"]["color"]["green"];
-    _configuration.afterlifeSettings.cyclotron.color.blue = doc["modes"]["afterlife"]["cyclotron"]["color"]["blue"];
+    _extractStripSettings(
+            _configuration.proton.cyclotron,
+            doc["modes"]["proton"],
+            "cyclotron"
+    );
 
     // N-Filter
-    _configuration.afterlifeSettings.nfilter.speed = doc["modes"]["afterlife"]["nfilter"]["speed"] | 500;
-    _configuration.afterlifeSettings.nfilter.color.red = doc["modes"]["afterlife"]["nfilter"]["color"]["red"];
-    _configuration.afterlifeSettings.nfilter.color.green = doc["modes"]["afterlife"]["nfilter"]["color"]["green"];
-    _configuration.afterlifeSettings.nfilter.color.blue = doc["modes"]["afterlife"]["nfilter"]["color"]["blue"];
+    _extractStripSettings(
+            _configuration.proton.nfilter,
+            doc["modes"]["proton"],
+            "nfilter"
+    );
 
     // Demo: Save back?
     // EEPROM.begin(4098);
@@ -75,6 +81,83 @@ void ConfigManager::init()
     // EepromStream eepromStream(0, 4098);
     // serializeJson(doc, eepromStream);
     // eepromStream.flush();
+}
+
+void ConfigManager::_extractStripSettings(
+    StripSettings& config,
+    JsonVariant settings,
+    const char* stripId
+) {
+    /**
+     * TODO: We need to be checking if these JsonVariant elements actually exist (eg if invalid JSON),
+     *       or else the entire device will crash instantly.
+     */
+    config.color = _hexToUnsignedLong(settings["color"][stripId].as<const char *>());
+
+    config.idle.effect = _convertEffect(settings["states"]["idle"][stripId]["effect"].as<const char *>());
+}
+
+unsigned long ConfigManager::_hexToUnsignedLong(const char *rgb32_str_)
+{
+    return strtoul(rgb32_str_, 0, 16);
+}
+
+
+/**
+ * TODO: This needs to be refactored to something cleaner/simpler
+ * @param input
+ * @return LIGHT_EFFECTS
+ */
+LIGHT_EFFECTS ConfigManager::_convertEffect(const char *input)
+{
+    if (strcmp(input, STR_EFFECT_OFF) == 0) {
+        return EFFECT_OFF;
+    }
+
+    if (strcmp(input, STR_EFFECT_ALL_ON) == 0) {
+        return EFFECT_ALL_ON;
+    }
+
+    if (strcmp(input, STR_EFFECT_CYCLING) == 0) {
+        debug("CYCLING: ");
+        debugln(input);
+        return EFFECT_CYCLING;
+    }
+
+    if (strcmp(input, STR_EFFECT_SPINNING) == 0) {
+        return EFFECT_SPINNING;
+    }
+
+    if (strcmp(input, STR_EFFECT_RAINBOW) == 0) {
+        return EFFECT_RAINBOW;
+    }
+
+    if (strcmp(input, STR_EFFECT_RAINBOW_SCROLL) == 0) {
+        return EFFECT_RAINBOW_SCROLL;
+    }
+
+    if (strcmp(input, STR_EFFECT_CYLON) == 0) {
+        return EFFECT_CYLON;
+    }
+
+    if (strcmp(input, STR_EFFECT_TETRIS) == 0) {
+        return EFFECT_TETRIS;
+    }
+
+    if (strcmp(input, STR_EFFECT_DESCEND) == 0) {
+        return EFFECT_DESCEND;
+    }
+
+    if (strcmp(input, STR_EFFECT_ALTERNATE) == 0) {
+        return EFFECT_ALTERNATE;
+    }
+
+    if (strcmp(input, STR_EFFECT_BLINKING) == 0) {
+        return EFFECT_BLINKING;
+    }
+
+    // Default/fallback effect is 'off'
+    return EFFECT_OFF;
 }
 
 Configuration ConfigManager::getConfiguration()
@@ -87,19 +170,22 @@ Configuration ConfigManager::getConfiguration()
  */
 Settings ConfigManager::getModeSettings(MODES mode)
 {
-    Settings _settings;
     switch (mode)
     {
-        case AFTERLIFE:
-            _settings = _configuration.afterlifeSettings;
-            break;
-        case CLASSIC:
         default:
-            _settings = _configuration.classicSettings;
+        case MODE_PROTON:
+            return _configuration.proton;
+            break;
+        case MODE_SLIME:
+            //return _configuration.
+            break;
+        case MODE_STASIS:
+            break;
+        case MODE_MESON:
             break;
     }
 
-    return _settings;
+    return _configuration.proton;
 }
 
 void ConfigManager::get(String key)

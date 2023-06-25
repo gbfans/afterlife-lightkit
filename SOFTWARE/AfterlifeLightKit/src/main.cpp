@@ -25,13 +25,7 @@ void setup()
     digitalWrite(SHIFT_PIN, HIGH);
 
     controls.init();
-
     lights.init();
-
-    // Off by default
-    lights.setState(INACTIVE);
-    lights.update(true);
-
     server.init();
 }
 
@@ -59,19 +53,19 @@ void loop()
     {
         // Powered off
         //debugln(F("Off"));
-        lights.setState(INACTIVE);
+        lights.setState(PACK_INACTIVE);
     }
     else if (controls.isState(STATE_POWER_UP))
     {
         // Starting up
         //debugln(F("Startup"));
-        lights.setState(START);
+        lights.setState(PACK_START);
     }
     else if (controls.isState(STATE_IDLE))
     {
         // Idling
         //debugln(F("Idle"));
-        lights.setState(IDLE);
+        lights.setState(PACK_IDLE);
     }
     else if (
             controls.isState(STATE_FIRE_MOVIE) ||
@@ -84,18 +78,18 @@ void loop()
         {
             // We have been firing for > 5 seconds
             //debugln(F("Overheating"));
-            lights.setState(OVERHEATING);
+            lights.setState(PACK_OVERHEATING);
         }
         else
         {
             //debugln(F("Firing"));
-            lights.setState(FIRING);
+            lights.setState(PACK_FIRING);
         }
     }
     else if (controls.isState(STATE_POWER_DOWN))
     {
         //debugln(F("Powering Down"));
-        lights.setState(SHUTDOWN);
+        lights.setState(PACK_SHUTDOWN);
     }
 
     // We should always update Lights AFTER the State has been set

@@ -1,13 +1,13 @@
 #include "FX.h"
 
-void FX::init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction, int speed)
+void FX::init(CRGB *pixels, int stripLength, CRGB ledColor)
 {
+    debug(F("Initializing Strip Length: "));
+    debugln(stripLength);
+
     _pixels = pixels;
     _stripLength = stripLength;
     _ledColor = ledColor;
-    _direction = direction;
-    _speed = _originalSpeed = speed;
-    _brightness = _originalBrightness = 255;
 
     // We need to set the Grain to 1ms or instant speed changes will not work
     _speedRamp.setGrain(1);
@@ -19,7 +19,7 @@ void FX::init(CRGB *pixels, int stripLength, CRGB ledColor, DIRECTIONS direction
 void FX::stop()
 {
     // Switch all lights off
-    setEffect(OFF, true);
+    setEffect(EFFECT_OFF, true);
 
     // Update immediately
     update(true);
@@ -28,7 +28,7 @@ void FX::stop()
 void FX::allOn()
 {
     // Switch all lights on
-    setEffect(ALL_ON);
+    setEffect(EFFECT_ALL_ON);
 
     // Update immediately
     update(true);
@@ -82,6 +82,20 @@ void FX::changeSpeed(int newSpeed, int delay, ramp_mode rampMode)
     _speedRamp.go(newSpeed, delay, rampMode, ONCEFORWARD);
 }
 
+void FX::changeSpeedFrom(int startSpeed, int newSpeed, int delay, ramp_mode rampMode)
+{
+    if (newSpeed == _speed)
+    {
+        return;
+    }
+
+    // Change to the start speed instantly
+    changeSpeed(startSpeed);
+
+    // Ramp to the new speed gradually
+    changeSpeed(newSpeed, delay, rampMode);
+}
+
 void FX::changeBrightness(int newBrightness)
 {
     if (newBrightness == _brightness) {
@@ -99,6 +113,15 @@ void FX::changeBrightness(int newBrightness)
 int FX::updateBrightness()
 {
       return _brightness;
+}
+
+/**
+ * Change the Color of the LEDs in this strip
+ * @param ledColor
+ */
+void FX::changeLedColor(CRGB ledColor)
+{
+    _ledColor = ledColor;
 }
 
 void FX::reset()
@@ -122,37 +145,37 @@ bool FX::update(bool force)
 
     switch (_effect)
     {
-        case OFF:
+        case EFFECT_OFF:
             _clear();
             break;
-        case ALL_ON:
+        case EFFECT_ALL_ON:
             _allOn();
             break;
-        case CYCLING:
+        case EFFECT_CYCLING:
             _cycling();
             break;
-        case SPINNING:
+        case EFFECT_SPINNING:
             _spinning();
             break;
-        case RAINBOW:
+        case EFFECT_RAINBOW:
             _rainbow();
             break;
-        case RAINBOW_SCROLL:
+        case EFFECT_RAINBOW_SCROLL:
             _rainbowScroll();
             break;
-        case CYLON:
+        case EFFECT_CYLON:
             _cylon();
             break;
-        case TETRIS:
+        case EFFECT_TETRIS:
             _tetris();
             break;
-        case DESCEND:
+        case EFFECT_DESCEND:
             _descend();
             break;
-        case ALTERNATE:
+        case EFFECT_ALTERNATE:
             _alternate();
             break;
-        case BLINKING:
+        case EFFECT_BLINKING:
             _blinking();
             break;
         default:
