@@ -88,11 +88,11 @@ void loop() {
     // eg if a button was pressed on the Wand connected to the Sound Board
     if (controls.changed()) {
         // Display the Old/Previous State
-        Serial.print("CHANGED - Old: ");
-        Serial.print(controls.getPreviousState());
+        debug("CHANGED - Old: ");
+        debug(controls.getPreviousState());
         // Display the New/Current State
-        Serial.print(", New: ");
-        Serial.println(controls.getCurrentState());
+        debug(", New: ");
+        debugln(controls.getCurrentState());
 
         if (controls.isState(STATE_IDLE)) {
             // Pack is powered up and idle, enable the Pack lights

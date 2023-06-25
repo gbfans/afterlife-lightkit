@@ -180,15 +180,57 @@ void GBFansControl::update()
     if (newState != _currentState)
     {
         // Input has changed
-//         Serial.print("Changed! - Old: ");
-//         Serial.print(_currentState);
-//         Serial.print(", New: ");
-//         Serial.println(newState);
+//        debug("Changed! - Old: ");
+//        debug(_currentState);
+//        debug(", New: ");
+//        debugln(newState);
+
         _lastDebounceTime = _currentMillis;
         _isChanged = true;
         _previousState = _currentState;
         _currentState = newState;
+        _hasReturnedSequenceMatch = false;
+
+        _pushHistory(newState);
     }
+}
+
+/**
+ * Push the newest Control State onto the History.
+ * This will remove the last in the list.
+ */
+void GBFansControl::_pushHistory(CONTROL_STATES newState)
+{
+    // Push each historical State to the next in the sequence
+    _historySequence = "";
+    for (int i = HISTORY_SIZE-1; i >= 1; --i)
+    {
+        // Push each historical State to the next in the sequence
+        int lastStateIndex = i-1;
+        _history[i] = _history[lastStateIndex];
+        _historySequence += _history[i];
+        _historySequence += ":";
+    }
+
+    // Add the current value to the first index
+    _historySequence += newState;
+    _history[0] = newState;
+}
+
+bool GBFansControl::isSequenceMatch(String comparison)
+{
+    if (_hasReturnedSequenceMatch) {
+        // We only want to return the match the first time
+        return false;
+    }
+
+    if (comparison == _historySequence) {
+        // A match was found against the Sequence
+        _hasReturnedSequenceMatch = true;
+        return true;
+    }
+
+    return false;
 }
 
 CONTROL_MODES GBFansControl::getMode()

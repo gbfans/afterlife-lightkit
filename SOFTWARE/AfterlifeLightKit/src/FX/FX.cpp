@@ -156,8 +156,8 @@ bool FX::update(bool force)
             _blinking();
             break;
         default:
-            //Serial.print("Unknown: ");
-            //Serial.println(_effect);
+            //debug("Unknown: ");
+            //debugln(_effect);
             break;
     }
 

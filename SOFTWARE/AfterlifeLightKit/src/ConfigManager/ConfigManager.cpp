@@ -9,7 +9,7 @@ void ConfigManager::init()
          * continue executing, but the Wifi Configuration feature
          * will be unavailable. Return a hard-coded HTML error page?
          */
-        Serial.println("An Error has occurred while mounting LittleFS");
+        debugln(F("An Error has occurred while mounting LittleFS"));
         return;
     }
 
@@ -17,7 +17,7 @@ void ConfigManager::init()
 
     if (!configFile)
     {
-        Serial.println("Opening config file failed.");
+        debugln(F("Opening config file failed."));
         return;
     }
 
@@ -29,7 +29,7 @@ void ConfigManager::init()
     {
         DeserializationError error = deserializeJson(doc, configFile);
         if (error) {
-            Serial.println(F("Failed to read file, using default configuration"));
+            debugln(F("Failed to read file, using default configuration"));
         }
     }
 
