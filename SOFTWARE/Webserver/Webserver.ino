@@ -30,6 +30,7 @@ void setup() {
 
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+  WiFi.setOutputPower(17.0);
   WiFi.softAP(APSSID, APPSK);
 
   dnsServer.start(DNS_PORT, "*", apIP);
