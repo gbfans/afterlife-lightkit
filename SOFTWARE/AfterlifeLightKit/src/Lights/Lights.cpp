@@ -20,8 +20,7 @@ void Lights::init()
 {
     debugln(F("Initializing Lights"));
     _configManager.init();
-
-    _settings = _configManager.getModeSettings(MODE_PROTON); // TODO: Update this to work dynamically
+    _configuration = _configManager.getConfiguration();
 
     // Initialize FastLED instances
     FastLED.addLeds<WS2812B_noflicker, POWERCELL_PIN, GRB>(_powercellLEDS, POWERCELL_LENGTH);
@@ -31,29 +30,34 @@ void Lights::init()
     FastLED.clear();
     FastLED.show();
 
+    // Get the current Colors for this Mode
+    ColorConfig colorConfig = _configManager.getColorConfig(_currentMode);
+
     // Initialize Power Cell effects
     _powercellFX.init(
             _powercellLEDS,
             POWERCELL_LENGTH,
-            CRGB(_settings.powercell.color)
+            CRGB(colorConfig.powercell)
     );
 
     // Initialize Cyclotron effects
     _cyclotronFX.init(
             _cyclotronLEDS,
             CYCLOTRON_LENGTH,
-            CRGB(_settings.cyclotron.color)
+            CRGB(colorConfig.cyclotron)
     );
 
     // Initialize NFilter effects
     _nfilterFX.init(
             _nfilterLEDS,
             NFILTER_LENGTH,
-            CRGB(_settings.nfilter.color)
+            CRGB(colorConfig.nfilter)
     );
 
     // Off by default
     setState(PACK_INACTIVE);
+
+    // Trigger an immediate update
     update(true);
 }
 
@@ -84,8 +88,16 @@ void Lights::setMode(MODES mode)
     if (_currentMode == mode) {
         return;
     }
+//    debug(F("Mode Changed"));
+//    debugln(mode);
 
     _currentMode = mode;
+
+    // Set the Colors for all Strips based on the current Mode
+    ColorConfig colorConfig = _configManager.getColorConfig(_currentMode);
+    _powercellFX.changeLedColor(colorConfig.powercell);
+    _cyclotronFX.changeLedColor(colorConfig.cyclotron);
+    _nfilterFX.changeLedColor(colorConfig.nfilter);
 }
 
 void Lights::setState(PACKSTATES state)
@@ -97,19 +109,6 @@ void Lights::setState(PACKSTATES state)
     }
 
     _currentState = state;
-    /**
-     * TODO: Changing the State or the Mode
-     *       will need to change the Cyclotron/Powercell FX animations.
-     *       e.g. If current State is 'IDLE' and new State is 'FIRING',
-     *            we need to access the correct FX configuration based on
-     *            the current mode, and then apply this to the applicable
-     *            FX instances. So this could require:
-     *            - Change Speed (eg 'Afterlife Firing Speed: 10ms')
-     *            - Change Color (eg 'Afterlife Firing Color: Blue')
-     *            - Change Effect (eg 'Afterlife Firing Effect: Spinning')
-     *            - Change Direction (eg 'Afterlife Firing Direction: Reverse')
-     *            All of these are configurable by the user.
-     */
 
     //debug("Lights State changed to: ");
     switch (_currentState)
@@ -147,105 +146,49 @@ void Lights::setState(PACKSTATES state)
 
 void Lights::_inactive()
 {
-    // Switch off all lights
-    _stop();
-}
-
-void Lights::_stop()
-{
-    // Switch off all lights
-    _cyclotronFX.stop();
-    _powercellFX.stop();
-    _nfilterFX.stop();
+    _powercellFX.setFromConfig(_configuration.inactive.powercell);
+    _cyclotronFX.setFromConfig(_configuration.inactive.cyclotron);
+    _nfilterFX.setFromConfig(_configuration.inactive.nfilter);
 }
 
 void Lights::_startup()
 {
-    // Switch off all lights (they should be off already during startup)
-    _cyclotronFX.setEffect(EFFECT_CYCLING, true);
-    // Ramp up to full idle speed over 3 seconds
-    // Start slow at speed 100, increase to speed 10 over 3 seconds
-    _cyclotronFX.changeSpeedFrom(100, 10, 3000, QUADRATIC_INOUT);
-
-    // Special PowerCell Startup animation
-    // Start at speed 25, increase to 5 over 3 seconds
-    _powercellFX.changeSpeedFrom(25, 5, 3000, QUADRATIC_INOUT);
-    _powercellFX.setEffect(EFFECT_TETRIS, true);
-    _powercellFX.setReverse();
-
-    _nfilterFX.setEffect(EFFECT_OFF);
+    _powercellFX.setFromConfig(_configuration.start.powercell);
+    _cyclotronFX.setFromConfig(_configuration.start.cyclotron);
+    _nfilterFX.setFromConfig(_configuration.start.nfilter);
 }
 
 void Lights::_idle()
 {
-    // Switch off NFilter (if on)
-    _nfilterFX.stop();
-
-    // NOTE: We should already be at this speed after Startup, but subsequent effect changes (firing etc) will return
-    // here, so this ensures a gradual ramp up/down from our previous speed.
-    _cyclotronFX.setEffect(EFFECT_CYCLING);
-    _cyclotronFX.changeSpeed(10, 1000, QUADRATIC_INOUT);
-
-    // Set to SPINNING for standard mode
-    // Set to CYCLING for that one Afterlife scene where Ray was knocked over and the PowerCell was misconfigured
-    //_powercellFX.setEffect(EFFECT_SPINNING, true);
-    _powercellFX.setEffect(_settings.powercell.idle.effect, true);
-    _powercellFX.changeSpeed(50, 0, QUADRATIC_INOUT); // instant speed change
+    _cyclotronFX.setFromConfig(_configuration.idle.cyclotron);
+    _powercellFX.setFromConfig(_configuration.idle.powercell);
+    _nfilterFX.setFromConfig(_configuration.idle.nfilter);
 }
 
 void Lights::_shutdown()
 {
-    // Switch off NFilter (if on)
-    _nfilterFX.stop();
-
-    // Afterlife: Slow down the Cyclotron over 3 seconds
-    _cyclotronFX.setEffect(EFFECT_CYCLING); // in case we were non-idle (firing/venting/etc) at Shutdown
-    _cyclotronFX.changeSpeed(100, 3000, LINEAR);
-
-    // Fade out PowerCell over 2-3 seconds
-    //_powercellFX.allOn();
-    _powercellFX.setEffect(EFFECT_DESCEND, true);
-    _powercellFX.changeSpeed(round(2000/POWERCELL_LENGTH));
-    _powercellFX.setReverse();
+    _cyclotronFX.setFromConfig(_configuration.shutdown.cyclotron);
+    _powercellFX.setFromConfig(_configuration.shutdown.powercell);
+    _nfilterFX.setFromConfig(_configuration.shutdown.nfilter);
 }
 
 void Lights::_firing()
 {
-    // Switch off NFilter (if on)
-    _nfilterFX.stop();
-
-    // Make Cyclotron faster (3 instead of 5 delay), take 2 seconds to speed up
-    _cyclotronFX.setEffect(EFFECT_CYCLING);
-    _cyclotronFX.changeSpeed(3, 2000, QUADRATIC_INOUT);
-
-    // Make Power Cell faster (25 instead of 50 delay), take 2 seconds to speed up
-    _powercellFX.setEffect(EFFECT_SPINNING);
-    _powercellFX.changeSpeed(25, 2000, QUADRATIC_INOUT);
+    _cyclotronFX.setFromConfig(_configuration.firing.cyclotron);
+    _powercellFX.setFromConfig(_configuration.firing.powercell);
+    _nfilterFX.setFromConfig(_configuration.firing.nfilter);
 }
 
 void Lights::_overheating()
 {
-    // Switch off NFilter (if on)
-    _nfilterFX.stop();
-
-    // Faster Cyclotron
-    _cyclotronFX.setEffect(EFFECT_CYCLING);
-    _cyclotronFX.changeSpeed(2, 3000, QUADRATIC_INOUT);
-
-    // Make Power Cell alternate
-    _powercellFX.setEffect(EFFECT_ALTERNATE, true);
-    _powercellFX.changeSpeed(200);
-
-    // TODO: We won't actually switch the nfilter on during overheating, it will be during venting
-    _nfilterFX.setEffect(EFFECT_ALL_ON);
+    _cyclotronFX.setFromConfig(_configuration.overheating.cyclotron);
+    _powercellFX.setFromConfig(_configuration.overheating.powercell);
+    _nfilterFX.setFromConfig(_configuration.overheating.nfilter);
 }
 
 void Lights::_venting()
 {
-    // To be implemented
-
-    // We don't need to do anything to the powercell/cyclotron
-    // so they should continue doing what they're doing
-
-    _nfilterFX.setEffect(EFFECT_ALL_ON);
+    _cyclotronFX.setFromConfig(_configuration.venting.cyclotron);
+    _powercellFX.setFromConfig(_configuration.venting.powercell);
+    _nfilterFX.setFromConfig(_configuration.venting.nfilter);
 }

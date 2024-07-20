@@ -22,15 +22,15 @@ class Lights {
 
         // Public Methods
         void init();
-        void setMode(MODES mode); // Both Powercell/Cyclotron are in same mode
+        void setMode(MODES mode); // Both Powercell/Cyclotron are in same Mode
         void update(bool force = false);
         void setState(PACKSTATES state);
     private:
         // Private Properties
         ConfigManager _configManager;
-        Settings _settings;
-        MODES _currentMode;
-        PACKSTATES _currentState;
+        Configuration _configuration;
+        MODES _currentMode = MODE_PROTON; // default to Proton Mode
+        PACKSTATES _currentState; // Do not set a default state
         FX _powercellFX;
         FX _cyclotronFX;
         FX _nfilterFX;
@@ -39,7 +39,6 @@ class Lights {
         CRGB _cyclotronLEDS[CYCLOTRON_LENGTH];
         CRGB _nfilterLEDS[NFILTER_LENGTH];
 
-        void _stop();
         void _inactive();
         void _startup();
         void _idle();

@@ -5,12 +5,12 @@ This is the code repository for the Afterlife Light Kit, coming soon!
 ![PCB: Back](HARDWARE/images/afterlife-pcb2.png)
 
 ## Project Goals / Roadmap
-- [ ] Recreate Cyclotron effect from Ghostbusters: Afterlife.
-- [ ] Powercell LED bar graph.
+- [X] Recreate Cyclotron effect from Ghostbusters: Afterlife.
+- [X] Powercell LED bar graph.
 - [ ] Number of LEDs for each light output should be configurable so smaller LED rings can be used for smaller packs.
-- [ ] Configurable Cyclotron direction (Clockwise/Anticlockwise)
-- [ ] Vent light LED ring.
-- [ ] Color changing for Ghostbusters: The Video Game modes.
+- [X] Configurable Cyclotron direction (Clockwise/Anticlockwise)
+- [X] Vent light LED ring.
+- [X] Color changing for Ghostbusters: The Video Game modes.
 - [ ] Broadcast access point with DNS so the device can be accessed via a hostname (`gbfans.com`?).
 - [ ] Settings can be configured via a web interface.
 - [ ] Firmware can be updated via a web interface or over serial.
