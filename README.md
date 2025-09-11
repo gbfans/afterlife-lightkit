@@ -1,3 +1,7 @@
+# THE SPIRITUAL SUCCESSOR TO THIS PROJECT IS NOW LOCATED AT: https://github.com/gbfans/pack-light-and-sound-firmware
+
+
+
 # Afterlife Light Kit
 This is the code repository for the Afterlife Light Kit, coming soon!
 
